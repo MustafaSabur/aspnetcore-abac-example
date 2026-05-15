@@ -1,0 +1,48 @@
+@AbacExample.Api_HostAddress = http://localhost:5042
+@NormalAppointment = 60000000-0000-0000-0000-000000000001
+@SensitiveAppointment = 60000000-0000-0000-0000-000000000002
+@OtherTenantAppointment = 60000000-0000-0000-0000-000000000003
+
+GET {{AbacExample.Api_HostAddress}}/sample/users
+Accept: application/json
+
+###
+
+GET {{AbacExample.Api_HostAddress}}/sample/appointments
+Accept: application/json
+
+###
+
+GET {{AbacExample.Api_HostAddress}}/sample/whoami
+Accept: application/json
+X-Sample-Subject: clinician-ben
+X-Sample-Mfa: true
+
+###
+
+GET {{AbacExample.Api_HostAddress}}/appointments/{{NormalAppointment}}
+Accept: application/json
+X-Sample-Subject: patient-alice
+
+###
+
+PATCH {{AbacExample.Api_HostAddress}}/appointments/{{NormalAppointment}}/reschedule
+Content-Type: application/json
+X-Sample-Subject: scheduler-cara
+
+{
+  "newStartTime": "2030-01-01T10:00:00Z"
+}
+
+###
+
+PATCH {{AbacExample.Api_HostAddress}}/appointments/{{SensitiveAppointment}}/clinical-notes
+Content-Type: application/json
+X-Sample-Subject: clinician-ben
+X-Sample-Mfa: true
+
+{
+  "notes": "Example notes written after an ABAC check."
+}
+
+###
