@@ -26,8 +26,8 @@ dotnet build .\AspNetCoreAbacExample.slnx
 - `Authorization/AuthorizationAudit.cs` contains the resource-based ABAC handler and audit port.
 - `Authorization/CurrentUser.cs` and `Authorization/ICurrentUser.cs` provide a typed current-user wrapper.
 - `Domain/Appointment.cs` keeps domain state invariants after authorization succeeds.
-- `Endpoints/AppointmentEndpoints.cs` shows where resources are loaded before calling `IAuthorizationService`.
-- `Data/IAppointmentRepository.cs` is the persistence boundary the future app should implement.
+- `Endpoints/AppointmentEndpoints.cs` shows loading resources through EF Core before calling `IAuthorizationService`.
+- `Data/AppDbContext.cs` is the EF Core data boundary the future app should configure with a provider.
 
 ## Required Infrastructure For A Real App
 
@@ -35,7 +35,10 @@ Add concrete implementations in the consuming application:
 
 ```csharp
 builder.Services.AddScoped<IAppAuthorizationProfileLoader, DbAppAuthorizationProfileLoader>();
-builder.Services.AddScoped<IAppointmentRepository, DbAppointmentRepository>();
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    // Configure your database provider here.
+});
 ```
 
 Configure JWT bearer authentication:

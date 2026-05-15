@@ -3,6 +3,7 @@ using AbacExample.Api.Authorization;
 using AbacExample.Api.Data;
 using AbacExample.Api.Domain;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
 namespace AbacExample.Api.Endpoints;
 
@@ -31,12 +32,14 @@ public static class AppointmentEndpoints
 
     private static async Task<IResult> GetAppointment(
         Guid id,
-        IAppointmentRepository appointments,
+        AppDbContext db,
         IAuthorizationService authorization,
         ClaimsPrincipal user,
         CancellationToken cancellationToken)
     {
-        var appointment = await appointments.FindAsync(id, cancellationToken);
+        var appointment = await db.Appointments
+            .AsNoTracking()
+            .SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
 
         if (appointment is null)
         {
@@ -56,13 +59,14 @@ public static class AppointmentEndpoints
     private static async Task<IResult> RescheduleAppointment(
         Guid id,
         RescheduleAppointmentRequest request,
-        IAppointmentRepository appointments,
+        AppDbContext db,
         IAuthorizationService authorization,
         ClaimsPrincipal user,
         TimeProvider timeProvider,
         CancellationToken cancellationToken)
     {
-        var appointment = await appointments.FindAsync(id, cancellationToken);
+        var appointment = await db.Appointments
+            .SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
 
         if (appointment is null)
         {
@@ -85,19 +89,22 @@ public static class AppointmentEndpoints
             return Results.BadRequest(new ProblemDetailsResponse(ex.Message));
         }
 
+        await db.SaveChangesAsync(cancellationToken);
+
         return Results.Ok(AppointmentResponse.FromAppointment(appointment));
     }
 
     private static async Task<IResult> WriteClinicalNotes(
         Guid id,
         WriteClinicalNotesRequest request,
-        IAppointmentRepository appointments,
+        AppDbContext db,
         IAuthorizationService authorization,
         ClaimsPrincipal user,
         TimeProvider timeProvider,
         CancellationToken cancellationToken)
     {
-        var appointment = await appointments.FindAsync(id, cancellationToken);
+        var appointment = await db.Appointments
+            .SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
 
         if (appointment is null)
         {
@@ -112,18 +119,21 @@ public static class AppointmentEndpoints
         }
 
         appointment.WriteClinicalNotes(request.Notes, user.UserId()!.Value, timeProvider.GetUtcNow());
+        await db.SaveChangesAsync(cancellationToken);
+
         return Results.Ok(AppointmentResponse.FromAppointment(appointment));
     }
 
     private static async Task<IResult> CancelAppointment(
         Guid id,
-        IAppointmentRepository appointments,
+        AppDbContext db,
         IAuthorizationService authorization,
         ClaimsPrincipal user,
         TimeProvider timeProvider,
         CancellationToken cancellationToken)
     {
-        var appointment = await appointments.FindAsync(id, cancellationToken);
+        var appointment = await db.Appointments
+            .SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
 
         if (appointment is null)
         {
@@ -138,6 +148,8 @@ public static class AppointmentEndpoints
         }
 
         appointment.Cancel(user.UserId()!.Value, timeProvider.GetUtcNow());
+        await db.SaveChangesAsync(cancellationToken);
+
         return Results.Ok(AppointmentResponse.FromAppointment(appointment));
     }
 }

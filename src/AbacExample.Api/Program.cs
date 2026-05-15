@@ -1,4 +1,5 @@
 using AbacExample.Api.Authorization;
+using AbacExample.Api.Data;
 using AbacExample.Api.Endpoints;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -35,7 +36,7 @@ builder.Services.AddScoped<IAuthorizationHandler, AppointmentAbacHandler>();
 
 // Add project-specific infrastructure in the future application:
 // builder.Services.AddScoped<IAppAuthorizationProfileLoader, DbAppAuthorizationProfileLoader>();
-// builder.Services.AddScoped<IAppointmentRepository, DbAppointmentRepository>();
+// builder.Services.AddDbContext<AppDbContext>(options => { /* configure database provider */ });
 
 var app = builder.Build();
 
