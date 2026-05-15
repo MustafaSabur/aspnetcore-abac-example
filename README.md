@@ -10,7 +10,7 @@ The goal is to show the authorization shape:
 - Tenant mismatch is a hard deny.
 - Relationships are attributes, not permissions by themselves.
 - Capabilities such as scheduling and clinic-wide read access are explicit.
-- Platform override is modeled as a break-glass path that requires MFA and audit logging.
+- Platform override is modeled as a break-glass path that requires MFA.
 
 ## Build
 
@@ -23,7 +23,7 @@ dotnet build .\AspNetCoreAbacExample.slnx
 - `Authorization/AppClaims.cs` defines identity-provider and app-owned authorization claim names.
 - `Authorization/AppAuthorizationProfile.cs` defines the app-owned authorization profile and loader port.
 - `Authorization/AppClaimsTransformation.cs` projects the loaded app profile onto the current request principal.
-- `Authorization/AuthorizationAudit.cs` contains the resource-based ABAC handler and audit port.
+- `Authorization/AppointmentAbacHandler.cs` contains the resource-based ABAC handler.
 - `Authorization/CurrentUser.cs` and `Authorization/ICurrentUser.cs` provide a typed current-user wrapper.
 - `Domain/Appointment.cs` keeps domain state invariants after authorization succeeds.
 - `Endpoints/AppointmentEndpoints.cs` shows loading resources through EF Core before calling `IAuthorizationService`.
@@ -60,4 +60,4 @@ Configure JWT bearer authentication:
 - Capabilities such as scheduling or clinic-wide read access must be explicit.
 - Tenant mismatch is a hard deny.
 - Domain methods still enforce state invariants after authorization succeeds.
-- Platform override is a break-glass path and must be audited.
+- Platform override is a break-glass path and should stay explicit.

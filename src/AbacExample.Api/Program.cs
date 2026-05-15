@@ -29,7 +29,6 @@ builder.Services.AddAuthorizationBuilder()
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<IClaimsTransformation, AppClaimsTransformation>();
-builder.Services.AddSingleton<IAuthorizationAuditSink, LoggingAuthorizationAuditSink>();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 builder.Services.AddScoped<IAuthorizationHandler, AppointmentAbacHandler>();

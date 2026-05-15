@@ -5,28 +5,8 @@ using Microsoft.AspNetCore.Authorization.Infrastructure;
 
 namespace AbacExample.Api.Authorization;
 
-public interface IAuthorizationAuditSink
-{
-    void PlatformOverrideAllowed(Guid? userId, Guid appointmentId, string operation);
-}
-
-public sealed class LoggingAuthorizationAuditSink(
-    ILogger<LoggingAuthorizationAuditSink> logger)
-    : IAuthorizationAuditSink
-{
-    public void PlatformOverrideAllowed(Guid? userId, Guid appointmentId, string operation)
-    {
-        logger.LogWarning(
-            "ABAC platform override allowed. UserId={UserId} AppointmentId={AppointmentId} Operation={Operation}",
-            userId,
-            appointmentId,
-            operation);
-    }
-}
-
 public sealed class AppointmentAbacHandler(
     TimeProvider timeProvider,
-    IAuthorizationAuditSink audit,
     ILogger<AppointmentAbacHandler> logger)
     : AuthorizationHandler<OperationAuthorizationRequirement, Appointment>
 {
@@ -46,7 +26,6 @@ public sealed class AppointmentAbacHandler(
 
         if (CanUsePlatformOverride(user))
         {
-            audit.PlatformOverrideAllowed(user.UserId(), appointment.Id, requirement.Name ?? "unknown");
             context.Succeed(requirement);
             return Task.CompletedTask;
         }
