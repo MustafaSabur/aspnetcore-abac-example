@@ -73,13 +73,11 @@ public sealed class AppointmentAbacHandler(
         }
 
         return user.ClinicId() == appointment.ClinicId
-               && user.CanReadClinicAppointments()
                && HasEnoughClearance(user, appointment);
     }
 
     private static bool CanReschedule(ClaimsPrincipal user, Appointment appointment, DateTimeOffset now) =>
         user.ClinicId() == appointment.ClinicId
-        && user.CanSchedule()
         && !appointment.IsLocked
         && appointment.StartsAt > now;
 
@@ -91,7 +89,6 @@ public sealed class AppointmentAbacHandler(
 
     private static bool CanCancel(ClaimsPrincipal user, Appointment appointment, DateTimeOffset now) =>
         user.ClinicId() == appointment.ClinicId
-        && user.CanSchedule()
         && !appointment.IsLocked
         && appointment.StartsAt > now;
 

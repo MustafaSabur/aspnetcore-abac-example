@@ -39,10 +39,18 @@ public sealed class AppClaimsTransformation(
         identity.AddClaim(new Claim(AppClaims.TenantId, profile.TenantId.ToString()));
         identity.AddClaim(new Claim(AppClaims.UserKind, ((int)profile.UserKind).ToString()));
         identity.AddClaim(new Claim(AppClaims.Clearance, ((int)profile.Clearance).ToString()));
-        identity.AddClaim(new Claim(AppClaims.CanSchedule, BooleanClaimValues.FromBoolean(profile.CanSchedule)));
-        identity.AddClaim(new Claim(AppClaims.CanReadClinicAppointments, BooleanClaimValues.FromBoolean(profile.CanReadClinicAppointments)));
         identity.AddClaim(new Claim(AppClaims.CanUsePlatformOverride, BooleanClaimValues.FromBoolean(profile.CanUsePlatformOverride)));
         identity.AddClaim(new Claim(AppClaims.ClaimsVersion, profile.ClaimsVersion.ToString()));
+
+        foreach (var roleName in profile.RoleNames.Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            identity.AddClaim(new Claim(AppClaims.Role, roleName));
+        }
+
+        foreach (var permission in profile.Permissions.Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            identity.AddClaim(new Claim(AppClaims.Permission, permission));
+        }
 
         AddOptional(identity, AppClaims.ClinicId, profile.ClinicId);
         AddOptional(identity, AppClaims.PatientId, profile.PatientId);

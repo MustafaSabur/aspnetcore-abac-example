@@ -1,5 +1,4 @@
 using AbacExample.Api.Authorization;
-using AbacExample.Api.Data;
 using AbacExample.Api.Endpoints;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -25,16 +24,18 @@ var appUserPolicy = new AuthorizationPolicyBuilder(JwtBearerDefaults.Authenticat
 
 builder.Services.AddAuthorizationBuilder()
     .SetDefaultPolicy(appUserPolicy)
-    .SetFallbackPolicy(appUserPolicy);
+    .SetFallbackPolicy(appUserPolicy)
+    .AddAppPermissionPolicies();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<IClaimsTransformation, AppClaimsTransformation>();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+builder.Services.AddScoped<IAppAuthorizationProfileLoader, AbacExample.Api.Data.DbAppAuthorizationProfileLoader>();
+builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, AppointmentAbacHandler>();
 
 // Add project-specific infrastructure in the future application:
-// builder.Services.AddScoped<IAppAuthorizationProfileLoader, DbAppAuthorizationProfileLoader>();
 // builder.Services.AddDbContext<AppDbContext>(options => { /* configure database provider */ });
 
 var app = builder.Build();

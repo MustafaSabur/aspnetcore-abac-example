@@ -13,12 +13,12 @@ public static class AppClaims
     public const string UserId = "app_user_id";
     public const string TenantId = "tenant_id";
     public const string UserKind = "user_kind";
+    public const string Role = "app_role";
+    public const string Permission = "app_permission";
     public const string ClinicId = "clinic_id";
     public const string PatientId = "patient_id";
     public const string ClinicianId = "clinician_id";
     public const string Clearance = "clearance";
-    public const string CanSchedule = "can_schedule";
-    public const string CanReadClinicAppointments = "can_read_clinic_appointments";
     public const string CanUsePlatformOverride = "can_use_platform_override";
     public const string ClaimsVersion = "claims_version";
 }

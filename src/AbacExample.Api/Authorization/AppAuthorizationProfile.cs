@@ -11,9 +11,9 @@ public sealed record AppAuthorizationProfile(
     Guid? PatientId,
     Guid? ClinicianId,
     SensitivityLevel Clearance,
-    bool CanSchedule,
-    bool CanReadClinicAppointments,
     bool CanUsePlatformOverride,
+    IReadOnlyCollection<string> RoleNames,
+    IReadOnlyCollection<string> Permissions,
     bool IsActive,
     long ClaimsVersion);
 

@@ -15,19 +15,56 @@ public static class AppointmentEndpoints
             .RequireAuthorization()
             .WithTags("Appointments");
 
+        group.MapPost("/", CreateAppointment)
+            .RequireAuthorization(AppPermissions.AppointmentCreate)
+            .WithName("CreateAppointment");
+
         group.MapGet("/{id:guid}", GetAppointment)
+            .RequireAuthorization(AppPermissions.AppointmentRead)
             .WithName("GetAppointment");
 
+        group.MapGet("/{id:guid}/edit-context", GetAppointment)
+            .RequireAnyPermission(
+                AppPermissions.AppointmentRead,
+                AppPermissions.AppointmentUpdate)
+            .WithName("GetAppointmentEditContext");
+
         group.MapPatch("/{id:guid}/reschedule", RescheduleAppointment)
+            .RequireAuthorization(AppPermissions.AppointmentUpdate)
             .WithName("RescheduleAppointment");
 
         group.MapPatch("/{id:guid}/clinical-notes", WriteClinicalNotes)
+            .RequireAuthorization(AppPermissions.AppointmentUpdate)
             .WithName("WriteClinicalNotes");
 
         group.MapPost("/{id:guid}/cancel", CancelAppointment)
+            .RequireAuthorization(AppPermissions.AppointmentDelete)
             .WithName("CancelAppointment");
 
         return app;
+    }
+
+    private static async Task<IResult> CreateAppointment(
+        CreateAppointmentRequest request,
+        AppDbContext db,
+        ClaimsPrincipal user,
+        CancellationToken cancellationToken)
+    {
+        var appointment = new Appointment
+        {
+            Id = Guid.NewGuid(),
+            TenantId = user.TenantId()!.Value,
+            ClinicId = request.ClinicId,
+            PatientId = request.PatientId,
+            AssignedClinicianId = request.AssignedClinicianId,
+            Sensitivity = request.Sensitivity,
+            StartsAt = request.StartsAt
+        };
+
+        db.Appointments.Add(appointment);
+        await db.SaveChangesAsync(cancellationToken);
+
+        return Results.Created($"/appointments/{appointment.Id}", AppointmentResponse.FromAppointment(appointment));
     }
 
     private static async Task<IResult> GetAppointment(
@@ -177,6 +214,13 @@ public sealed record AppointmentResponse(
             appointment.StartsAt,
             appointment.ClinicalNotes);
 }
+
+public sealed record CreateAppointmentRequest(
+    Guid ClinicId,
+    Guid PatientId,
+    Guid AssignedClinicianId,
+    SensitivityLevel Sensitivity,
+    DateTimeOffset StartsAt);
 
 public sealed record RescheduleAppointmentRequest(DateTimeOffset NewStartTime);
 

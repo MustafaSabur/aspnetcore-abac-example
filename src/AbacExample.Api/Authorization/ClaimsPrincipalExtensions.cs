@@ -12,13 +12,13 @@ public static class ClaimsPrincipalExtensions
         public Guid? ClinicId() => user.GetGuidClaim(AppClaims.ClinicId);
         public Guid? PatientId() => user.GetGuidClaim(AppClaims.PatientId);
         public Guid? ClinicianId() => user.GetGuidClaim(AppClaims.ClinicianId);
-        public bool CanSchedule() => user.HasBooleanClaim(AppClaims.CanSchedule);
-
-        public bool CanReadClinicAppointments() =>
-            user.HasBooleanClaim(AppClaims.CanReadClinicAppointments);
-
         public bool CanUsePlatformOverride() =>
             user.HasBooleanClaim(AppClaims.CanUsePlatformOverride);
+
+        public bool HasPermission(string permission) =>
+            user.Claims.Any(claim =>
+                claim.Type == AppClaims.Permission &&
+                string.Equals(claim.Value, permission, StringComparison.OrdinalIgnoreCase));
 
         public AppUserKind? UserKind()
         {
