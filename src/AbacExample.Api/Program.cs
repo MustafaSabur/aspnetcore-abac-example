@@ -27,16 +27,16 @@ builder.Services.AddAuthorizationBuilder()
     .SetFallbackPolicy(appUserPolicy)
     .AddAppPermissionPolicies();
 
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddTransient<IClaimsTransformation, AppClaimsTransformation>();
 builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+builder.Services.AddTransient<IClaimsTransformation, AppClaimsTransformation>();
 builder.Services.AddScoped<IAppAuthorizationProfileLoader, AbacExample.Api.Data.DbAppAuthorizationProfileLoader>();
 builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
-builder.Services.AddScoped<IAuthorizationHandler, AppointmentAbacHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, DocumentAbacHandler>();
 
-// Add project-specific infrastructure in the future application:
-// builder.Services.AddDbContext<AppDbContext>(options => { /* configure database provider */ });
+// Register your EF Core provider here, for example:
+// builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(...));
 
 var app = builder.Build();
 
@@ -44,6 +44,6 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapAppointmentEndpoints();
+app.MapDocumentEndpoints();
 
 app.Run();

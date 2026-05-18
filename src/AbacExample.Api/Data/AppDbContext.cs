@@ -5,7 +5,7 @@ namespace AbacExample.Api.Data;
 
 public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
-    public DbSet<Appointment> Appointments => Set<Appointment>();
+    public DbSet<Document> Documents => Set<Document>();
     public DbSet<AppUser> AppUsers => Set<AppUser>();
     public DbSet<AppUserRole> AppUserRoles => Set<AppUserRole>();
 
@@ -16,8 +16,6 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             user.HasKey(x => x.Id);
             user.HasIndex(x => x.ExternalSubjectId).IsUnique();
             user.Property(x => x.ExternalSubjectId).HasMaxLength(256);
-            user.Property(x => x.UserKind).HasConversion<string>();
-            user.Property(x => x.Clearance).HasConversion<string>();
         });
 
         modelBuilder.Entity<AppUserRole>(userRole =>
@@ -29,11 +27,9 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
                 .HasForeignKey(x => x.AppUserId);
         });
 
-        modelBuilder.Entity<Appointment>(appointment =>
+        modelBuilder.Entity<Document>(document =>
         {
-            appointment.HasKey(x => x.Id);
-            appointment.Property(x => x.Status).HasConversion<string>();
-            appointment.Property(x => x.Sensitivity).HasConversion<string>();
+            document.HasKey(x => x.Id);
         });
     }
 }

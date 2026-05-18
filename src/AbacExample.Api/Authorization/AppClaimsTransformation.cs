@@ -37,9 +37,6 @@ public sealed class AppClaimsTransformation(
         identity.AddClaim(new Claim(AppClaims.ProfileLoaded, BooleanClaimValues.True));
         identity.AddClaim(new Claim(AppClaims.UserId, profile.UserId.ToString()));
         identity.AddClaim(new Claim(AppClaims.TenantId, profile.TenantId.ToString()));
-        identity.AddClaim(new Claim(AppClaims.UserKind, ((int)profile.UserKind).ToString()));
-        identity.AddClaim(new Claim(AppClaims.Clearance, ((int)profile.Clearance).ToString()));
-        identity.AddClaim(new Claim(AppClaims.CanUsePlatformOverride, BooleanClaimValues.FromBoolean(profile.CanUsePlatformOverride)));
         identity.AddClaim(new Claim(AppClaims.ClaimsVersion, profile.ClaimsVersion.ToString()));
 
         foreach (var roleName in profile.RoleNames.Distinct(StringComparer.OrdinalIgnoreCase))
@@ -52,19 +49,7 @@ public sealed class AppClaimsTransformation(
             identity.AddClaim(new Claim(AppClaims.Permission, permission));
         }
 
-        AddOptional(identity, AppClaims.ClinicId, profile.ClinicId);
-        AddOptional(identity, AppClaims.PatientId, profile.PatientId);
-        AddOptional(identity, AppClaims.ClinicianId, profile.ClinicianId);
-
         principal.AddIdentity(identity);
         return principal;
-    }
-
-    private static void AddOptional(ClaimsIdentity identity, string claimType, Guid? value)
-    {
-        if (value is not null)
-        {
-            identity.AddClaim(new Claim(claimType, value.Value.ToString()));
-        }
     }
 }

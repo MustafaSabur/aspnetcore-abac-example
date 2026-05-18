@@ -3,32 +3,25 @@ namespace AbacExample.Api.Authorization;
 public static class AppRoles
 {
     public const string Admin = "admin";
-    public const string ReadOnly = "read-only";
-    public const string Scheduler = "scheduler";
-    public const string Clinician = "clinician";
+    public const string Reader = "reader";
+    public const string Editor = "editor";
 
     public static readonly IReadOnlyDictionary<string, string[]> DefaultPermissions =
         new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
         {
             [Admin] =
             [
-                AppPermissions.AppointmentCreate,
-                AppPermissions.AppointmentRead,
-                AppPermissions.AppointmentUpdate,
-                AppPermissions.AppointmentDelete
+                AppPermissions.DocumentCreate,
+                AppPermissions.DocumentRead,
+                AppPermissions.DocumentUpdate,
+                AppPermissions.DocumentDelete
             ],
-            [ReadOnly] = [AppPermissions.AppointmentRead],
-            [Scheduler] =
+            [Reader] = [AppPermissions.DocumentRead],
+            [Editor] =
             [
-                AppPermissions.AppointmentCreate,
-                AppPermissions.AppointmentRead,
-                AppPermissions.AppointmentUpdate,
-                AppPermissions.AppointmentDelete
-            ],
-            [Clinician] =
-            [
-                AppPermissions.AppointmentRead,
-                AppPermissions.AppointmentUpdate
+                AppPermissions.DocumentCreate,
+                AppPermissions.DocumentRead,
+                AppPermissions.DocumentUpdate
             ]
         };
 

@@ -5,17 +5,17 @@ namespace AbacExample.Api.Authorization;
 
 public static class AppPermissions
 {
-    public const string AppointmentCreate = "appointments:create";
-    public const string AppointmentRead = "appointments:read";
-    public const string AppointmentUpdate = "appointments:update";
-    public const string AppointmentDelete = "appointments:delete";
+    public const string DocumentCreate = "documents:create";
+    public const string DocumentRead = "documents:read";
+    public const string DocumentUpdate = "documents:update";
+    public const string DocumentDelete = "documents:delete";
 
     public static readonly IReadOnlyCollection<string> All =
     [
-        AppointmentCreate,
-        AppointmentRead,
-        AppointmentUpdate,
-        AppointmentDelete
+        DocumentCreate,
+        DocumentRead,
+        DocumentUpdate,
+        DocumentDelete
     ];
 }
 
