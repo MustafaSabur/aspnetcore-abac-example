@@ -1,8 +1,10 @@
 using AbacExample.Api.Authorization;
+using AbacExample.Api.Data;
 using AbacExample.Api.Endpoints;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,8 +37,8 @@ builder.Services.AddScoped<IAppAuthorizationProfileLoader, DbAppAuthorizationPro
 builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, DocumentAbacHandler>();
 
-// Register your EF Core provider here, for example:
-// builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(...));
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseInMemoryDatabase("AbacExample"));
 
 var app = builder.Build();
 

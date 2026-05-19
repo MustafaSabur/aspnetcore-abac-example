@@ -1,6 +1,6 @@
 # ASP.NET Core ABAC Example
 
-This is a buildable .NET 10 ASP.NET Core Web API example for a future ABAC implementation. It intentionally does not include fake authentication, seed data, sample endpoints, or in-memory persistence.
+This is a buildable .NET 10 ASP.NET Core Web API example for a future ABAC implementation. It intentionally does not include fake authentication or seed data. The app uses EF Core InMemory by default so the sample can start locally without database setup.
 
 The goal is to show the authorization shape:
 
@@ -33,7 +33,7 @@ dotnet build .\AspNetCoreAbacExample.slnx
 - `Data/DbAppAuthorizationProfileLoader.cs` loads role assignments for the authenticated `sub` and expands them to permissions in code.
 - `Domain/Appointment.cs` keeps domain state invariants after authorization succeeds.
 - `Endpoints/AppointmentEndpoints.cs` shows loading resources through EF Core before calling `IAuthorizationService`.
-- `Data/AppDbContext.cs` is the EF Core data boundary the future app should configure with a provider.
+- `Data/AppDbContext.cs` is the EF Core data boundary. The sample uses EF Core InMemory by default; a real app should replace it with its database provider.
 
 ## Endpoint Permissions
 
@@ -69,12 +69,12 @@ The example keeps role names and permission sets in code so the application has 
 
 ## Required Infrastructure For A Real App
 
-Configure EF Core with the database provider for the consuming application:
+Replace the sample EF Core InMemory registration with the database provider for the consuming application:
 
 ```csharp
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    // Configure your database provider here.
+    // Replace the sample InMemory provider with your database provider here.
 });
 ```
 
