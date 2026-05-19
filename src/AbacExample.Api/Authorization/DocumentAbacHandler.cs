@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using AbacExample.Api.Domain;
+using AbacExample.Api.Data.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 

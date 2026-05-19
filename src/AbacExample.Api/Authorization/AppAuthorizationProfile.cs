@@ -8,10 +8,3 @@ public sealed record AppAuthorizationProfile(
     IReadOnlyCollection<string> Permissions,
     bool IsActive,
     long ClaimsVersion);
-
-public interface IAppAuthorizationProfileLoader
-{
-    Task<AppAuthorizationProfile?> LoadBySubjectAsync(
-        string subject,
-        CancellationToken cancellationToken = default);
-}

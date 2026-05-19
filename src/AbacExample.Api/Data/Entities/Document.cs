@@ -1,4 +1,4 @@
-namespace AbacExample.Api.Domain;
+namespace AbacExample.Api.Data.Entities;
 
 public sealed class Document
 {

@@ -1,7 +1,7 @@
-using AbacExample.Api.Authorization;
+using AbacExample.Api.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace AbacExample.Api.Data;
+namespace AbacExample.Api.Authorization;
 
 public sealed class DbAppAuthorizationProfileLoader(AppDbContext db) : IAppAuthorizationProfileLoader
 {

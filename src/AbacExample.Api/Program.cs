@@ -31,7 +31,7 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 builder.Services.AddTransient<IClaimsTransformation, AppClaimsTransformation>();
-builder.Services.AddScoped<IAppAuthorizationProfileLoader, AbacExample.Api.Data.DbAppAuthorizationProfileLoader>();
+builder.Services.AddScoped<IAppAuthorizationProfileLoader, DbAppAuthorizationProfileLoader>();
 builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, DocumentAbacHandler>();
 

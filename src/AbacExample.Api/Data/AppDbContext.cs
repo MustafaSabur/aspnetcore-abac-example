@@ -1,4 +1,4 @@
-using AbacExample.Api.Domain;
+using AbacExample.Api.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace AbacExample.Api.Data;

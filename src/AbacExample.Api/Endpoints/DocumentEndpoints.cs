@@ -1,6 +1,6 @@
 using AbacExample.Api.Authorization;
 using AbacExample.Api.Data;
-using AbacExample.Api.Domain;
+using AbacExample.Api.Data.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
