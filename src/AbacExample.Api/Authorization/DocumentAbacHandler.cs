@@ -50,17 +50,31 @@ public sealed class DocumentAbacHandler(ILogger<DocumentAbacHandler> logger)
 
     private static bool CanRead(ClaimsPrincipal user, Document document)
     {
-        if (user.UserId() == document.OwnerId)
+        if (IsOwner(user, document))
         {
             return true;
         }
 
-        return !document.IsConfidential || user.HasMfa();
+        if (!document.IsConfidential)
+        {
+            return true;
+        }
+
+        return CanUseAdminBreakGlass(user);
     }
 
     private static bool CanUpdate(ClaimsPrincipal user, Document document) =>
-        user.UserId() == document.OwnerId;
+        IsOwner(user, document) || CanUseAdminBreakGlass(user);
 
     private static bool CanDelete(ClaimsPrincipal user, Document document) =>
+        IsOwner(user, document) || CanUseAdminBreakGlass(user);
+
+    private static bool IsOwner(ClaimsPrincipal user, Document document) =>
         user.UserId() == document.OwnerId;
+
+    private static bool CanUseAdminBreakGlass(ClaimsPrincipal user) =>
+        user.Claims.Any(claim =>
+            claim.Type == AppClaims.Role &&
+            string.Equals(claim.Value, AppRoles.Admin, StringComparison.OrdinalIgnoreCase)) &&
+        user.HasMfa();
 }
