@@ -30,6 +30,12 @@ public static class DocumentEndpoints
             .RequireAuthorization(AppPermissions.DocumentDelete)
             .WithName("DeleteDocument");
 
+        group.MapGet("/{id:guid}/management-context", GetDocumentManagementContext)
+            .RequireAnyPermission(
+                AppPermissions.DocumentUpdate,
+                AppPermissions.DocumentDelete)
+            .WithName("GetDocumentManagementContext");
+
         return app;
     }
 
@@ -136,19 +142,34 @@ public static class DocumentEndpoints
 
         return Results.NoContent();
     }
+
+    private static async Task<IResult> GetDocumentManagementContext(
+        Guid id,
+        AppDbContext db,
+        IAuthorizationService authorization,
+        ICurrentUser currentUser,
+        CancellationToken cancellationToken)
+    {
+        var document = await db.Documents
+            .AsNoTracking()
+            .SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+        if (document is null)
+        {
+            return Results.NotFound();
+        }
+
+        var principal = currentUser.Principal;
+        var canUpdate = principal.HasPermission(AppPermissions.DocumentUpdate) &&
+            (await authorization.AuthorizeAsync(principal, document, DocumentOperations.Update)).Succeeded;
+        var canDelete = principal.HasPermission(AppPermissions.DocumentDelete) &&
+            (await authorization.AuthorizeAsync(principal, document, DocumentOperations.Delete)).Succeeded;
+
+        if (!canUpdate && !canDelete)
+        {
+            return Results.Forbid();
+        }
+
+        return Results.Ok(new DocumentManagementContextResponse(document.Id, canUpdate, canDelete));
+    }
 }
-
-public sealed record DocumentResponse(
-    Guid Id,
-    Guid TenantId,
-    Guid OwnerId,
-    bool IsConfidential,
-    string? Content)
-{
-    public static DocumentResponse From(Document document) =>
-        new(document.Id, document.TenantId, document.OwnerId, document.IsConfidential, document.Content);
-}
-
-public sealed record CreateDocumentRequest(bool IsConfidential, string? Content);
-
-public sealed record UpdateDocumentRequest(string? Content);

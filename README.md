@@ -44,6 +44,7 @@ Expected results:
 - `reader-dev`: can read public same-tenant documents; cannot create, update, delete, or read confidential non-owned documents.
 - `reader-dev` with `amr=mfa`: still cannot read confidential non-owned documents because break-glass is admin-only.
 - `editor-dev`: can create documents and update documents it owns; it cannot update another user's document.
+- `editor-dev`: can call `GET /documents/{id}/management-context` for documents it can update, even though it does not have delete permission.
 - `admin-dev` with `amr=mfa`: can use break-glass access on same-tenant confidential or non-owned documents.
 - `outsider-dev`: can read tenant B documents, but tenant A documents are forbidden by tenant mismatch.
 
@@ -64,6 +65,7 @@ Endpoint permissions are coarse CRUD gates:
 | Read | `documents:read` |
 | Update | `documents:update` |
 | Delete | `documents:delete` |
+| Management context | `documents:update` OR `documents:delete` |
 
 Role assignments live in app data and are tied to the external `sub`. Role names and permission mappings stay fixed in code:
 
@@ -72,6 +74,8 @@ Role assignments live in app data and are tied to the external `sub`. Role names
 - `reader`: read
 
 `DocumentAbacHandler` then enforces resource rules: tenant mismatch is a hard deny, owners can read/update/delete their own documents when endpoint permissions allow it, non-owners can read public same-tenant documents, and admin+MFA is the only break-glass path for confidential or non-owned updates/deletes.
+
+Endpoints that need one of several permissions use `RequireAnyPermission(...)`. Do not stack multiple `.RequireAuthorization(...)` calls to model OR logic, because ASP.NET Core combines multiple authorization requirements as AND. `GET /documents/{id}/management-context` demonstrates the OR case: the endpoint admits callers with either update or delete permission, then returns only the actions that also pass the document resource rules.
 
 ## Real App Notes
 
