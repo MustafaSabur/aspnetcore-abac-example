@@ -6,22 +6,14 @@ public static class PermissionPolicyBuilderExtensions
 {
     public static AuthorizationPolicyBuilder RequirePermission(this AuthorizationPolicyBuilder policy, string permission)
     {
-        return policy.RequireAllPermissions(permission);
-    }
-
-    public static AuthorizationPolicyBuilder RequireAllPermissions(this AuthorizationPolicyBuilder policy, params string[] permissions)
-    {
-        policy.RequireAuthenticatedUser();
-        policy.RequireClaim(AppClaims.ProfileLoaded, BooleanClaimValues.True);
-        policy.Requirements.Add(PermissionRequirement.All(permissions));
-        return policy;
+        return policy.RequireAnyPermission(permission);
     }
 
     public static AuthorizationPolicyBuilder RequireAnyPermission(this AuthorizationPolicyBuilder policy, params string[] permissions)
     {
         policy.RequireAuthenticatedUser();
         policy.RequireClaim(AppClaims.ProfileLoaded, BooleanClaimValues.True);
-        policy.Requirements.Add(PermissionRequirement.Any(permissions));
+        policy.Requirements.Add(new PermissionRequirement(permissions));
         return policy;
     }
 

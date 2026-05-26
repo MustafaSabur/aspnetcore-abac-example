@@ -13,14 +13,7 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
             .Select(claim => claim.Value)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        var allowed = requirement.MatchMode switch
-        {
-            PermissionMatchMode.All => requirement.Permissions.All(userPermissions.Contains),
-            PermissionMatchMode.Any => requirement.Permissions.Any(userPermissions.Contains),
-            _ => false
-        };
-
-        if (allowed)
+        if (requirement.Permissions.Any(userPermissions.Contains))
         {
             context.Succeed(requirement);
         }
