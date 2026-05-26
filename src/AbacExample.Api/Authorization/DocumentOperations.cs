@@ -4,8 +4,7 @@ namespace AbacExample.Api.Authorization;
 
 public static class DocumentOperations
 {
-    public static readonly OperationAuthorizationRequirement View = new() { Name = nameof(View) };
-    public static readonly OperationAuthorizationRequirement Edit = new() { Name = nameof(Edit) };
-    public static readonly OperationAuthorizationRequirement Archive = new() { Name = nameof(Archive) };
-    public static readonly OperationAuthorizationRequirement Manage = new() { Name = nameof(Manage) };
+    public static readonly OperationAuthorizationRequirement Read = new() { Name = nameof(Read) };
+    public static readonly OperationAuthorizationRequirement Update = new() { Name = nameof(Update) };
+    public static readonly OperationAuthorizationRequirement Delete = new() { Name = nameof(Delete) };
 }

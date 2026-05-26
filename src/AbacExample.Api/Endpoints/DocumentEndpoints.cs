@@ -20,22 +20,21 @@ public static class DocumentEndpoints
             .WithName("CreateDocument");
 
         group.MapGet("/{id:guid}", GetDocument)
-            .RequireAuthorization(AppPermissions.DocumentView)
+            .RequireAuthorization(AppPermissions.DocumentRead)
             .WithName("GetDocument");
 
         group.MapPut("/{id:guid}", UpdateDocument)
-            .RequireAuthorization(AppPermissions.DocumentEdit)
+            .RequireAuthorization(AppPermissions.DocumentUpdate)
             .WithName("UpdateDocument");
 
-        group.MapPost("/{id:guid}/archive", ArchiveDocument)
-            .RequireAuthorization(AppPermissions.DocumentArchive)
-            .WithName("ArchiveDocument");
+        group.MapDelete("/{id:guid}", DeleteDocument)
+            .RequireAuthorization(AppPermissions.DocumentDelete)
+            .WithName("DeleteDocument");
 
         group.MapGet("/{id:guid}/management-context", GetDocumentManagementContext)
             .RequireAnyPermission(
-                AppPermissions.DocumentEdit,
-                AppPermissions.DocumentArchive,
-                AppPermissions.DocumentManage)
+                AppPermissions.DocumentUpdate,
+                AppPermissions.DocumentDelete)
             .WithName("GetDocumentManagementContext");
 
         return app;
@@ -78,7 +77,7 @@ public static class DocumentEndpoints
             return Results.NotFound();
         }
 
-        var result = await authorization.AuthorizeAsync(currentUser.Principal, document, DocumentOperations.View);
+        var result = await authorization.AuthorizeAsync(currentUser.Principal, document, DocumentOperations.Read);
 
         if (!result.Succeeded)
         {
@@ -104,7 +103,7 @@ public static class DocumentEndpoints
             return Results.NotFound();
         }
 
-        var result = await authorization.AuthorizeAsync(currentUser.Principal, document, DocumentOperations.Edit);
+        var result = await authorization.AuthorizeAsync(currentUser.Principal, document, DocumentOperations.Update);
 
         if (!result.Succeeded)
         {
@@ -117,7 +116,7 @@ public static class DocumentEndpoints
         return Results.Ok(DocumentResponse.From(document));
     }
 
-    private static async Task<IResult> ArchiveDocument(
+    private static async Task<IResult> DeleteDocument(
         Guid id,
         AppDbContext db,
         IAuthorizationService authorization,
@@ -132,14 +131,14 @@ public static class DocumentEndpoints
             return Results.NotFound();
         }
 
-        var result = await authorization.AuthorizeAsync(currentUser.Principal, document, DocumentOperations.Archive);
+        var result = await authorization.AuthorizeAsync(currentUser.Principal, document, DocumentOperations.Delete);
 
         if (!result.Succeeded)
         {
             return Results.Forbid();
         }
 
-        document.IsArchived = true;
+        db.Documents.Remove(document);
         await db.SaveChangesAsync(cancellationToken);
 
         return Results.NoContent();
@@ -162,18 +161,16 @@ public static class DocumentEndpoints
         }
 
         var principal = currentUser.Principal;
-        var canEdit = principal.HasPermission(AppPermissions.DocumentEdit) &&
-            (await authorization.AuthorizeAsync(principal, document, DocumentOperations.Edit)).Succeeded;
-        var canArchive = principal.HasPermission(AppPermissions.DocumentArchive) &&
-            (await authorization.AuthorizeAsync(principal, document, DocumentOperations.Archive)).Succeeded;
-        var canManage = principal.HasPermission(AppPermissions.DocumentManage) &&
-            (await authorization.AuthorizeAsync(principal, document, DocumentOperations.Manage)).Succeeded;
+        var canUpdate = principal.HasPermission(AppPermissions.DocumentUpdate) &&
+            (await authorization.AuthorizeAsync(principal, document, DocumentOperations.Update)).Succeeded;
+        var canDelete = principal.HasPermission(AppPermissions.DocumentDelete) &&
+            (await authorization.AuthorizeAsync(principal, document, DocumentOperations.Delete)).Succeeded;
 
-        if (!canEdit && !canArchive && !canManage)
+        if (!canUpdate && !canDelete)
         {
             return Results.Forbid();
         }
 
-        return Results.Ok(new DocumentManagementContextResponse(document.Id, canEdit, canArchive, canManage));
+        return Results.Ok(new DocumentManagementContextResponse(document.Id, canUpdate, canDelete));
     }
 }

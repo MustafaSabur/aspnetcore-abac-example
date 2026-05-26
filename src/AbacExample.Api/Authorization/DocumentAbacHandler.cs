@@ -35,10 +35,9 @@ public sealed class DocumentAbacHandler(ILogger<DocumentAbacHandler> logger)
 
         var allowed = requirement.Name switch
         {
-            nameof(DocumentOperations.View) => CanView(user, document),
-            nameof(DocumentOperations.Edit) => CanEdit(user, document),
-            nameof(DocumentOperations.Archive) => CanArchive(user, document),
-            nameof(DocumentOperations.Manage) => CanManage(user, document),
+            nameof(DocumentOperations.Read) => CanRead(user, document),
+            nameof(DocumentOperations.Update) => CanUpdate(user, document),
+            nameof(DocumentOperations.Delete) => CanDelete(user, document),
             _ => false
         };
 
@@ -50,7 +49,7 @@ public sealed class DocumentAbacHandler(ILogger<DocumentAbacHandler> logger)
         return Task.CompletedTask;
     }
 
-    private static bool CanView(ClaimsPrincipal user, Document document)
+    private static bool CanRead(ClaimsPrincipal user, Document document)
     {
         if (IsOwner(user, document))
         {
@@ -65,16 +64,11 @@ public sealed class DocumentAbacHandler(ILogger<DocumentAbacHandler> logger)
         return CanUseRecordsManagerBreakGlass(user);
     }
 
-    private static bool CanEdit(ClaimsPrincipal user, Document document) =>
-        !document.IsArchived &&
-        (IsOwner(user, document) || CanUseRecordsManagerBreakGlass(user));
+    private static bool CanUpdate(ClaimsPrincipal user, Document document) =>
+        IsOwner(user, document) || CanUseRecordsManagerBreakGlass(user);
 
-    private static bool CanArchive(ClaimsPrincipal user, Document document) =>
-        !document.IsArchived &&
-        (IsOwner(user, document) || CanUseRecordsManagerBreakGlass(user));
-
-    private static bool CanManage(ClaimsPrincipal user, Document document) =>
-        !document.IsArchived && CanUseRecordsManagerBreakGlass(user);
+    private static bool CanDelete(ClaimsPrincipal user, Document document) =>
+        IsOwner(user, document) || CanUseRecordsManagerBreakGlass(user);
 
     private static bool IsOwner(ClaimsPrincipal user, Document document) =>
         user.UserId() == document.OwnerId;

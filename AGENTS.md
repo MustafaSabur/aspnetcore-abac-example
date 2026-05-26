@@ -27,7 +27,7 @@ Use `dotnet user-jwts create --project .\src\AbacExample.Api\AbacExample.Api.csp
 
 ## Coding Style & Naming Conventions
 
-Use standard C# formatting: four-space indentation, file-scoped namespaces, nullable-aware code, and implicit usings. Keep public types in files named after the type, for example `AppPermissions.cs` or `DocumentAbacHandler.cs`. Permission strings follow the `resource:action` pattern, such as `documents:view`. Keep reusable auth plumbing in `AbacExample.Authorization`; keep service-specific permissions, roles, data, and resource handlers in `AbacExample.Api`.
+Use standard C# formatting: four-space indentation, file-scoped namespaces, nullable-aware code, and implicit usings. Keep public types in files named after the type, for example `AppPermissions.cs` or `DocumentAbacHandler.cs`. Permission strings follow the `resource:action` pattern, such as `documents:read`. Keep reusable auth plumbing in `AbacExample.Authorization`; keep service-specific permissions, roles, data, and resource handlers in `AbacExample.Api`.
 
 ## Testing Guidelines
 

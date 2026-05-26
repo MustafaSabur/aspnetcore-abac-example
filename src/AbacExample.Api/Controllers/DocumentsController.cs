@@ -18,9 +18,8 @@ public sealed class DocumentsController(
 {
     [HttpGet("{id:guid}/management-context")]
     [RequireAnyPermission(
-        AppPermissions.DocumentEdit,
-        AppPermissions.DocumentArchive,
-        AppPermissions.DocumentManage)]
+        AppPermissions.DocumentUpdate,
+        AppPermissions.DocumentDelete)]
     public async Task<ActionResult<DocumentManagementContextResponse>> GetManagementContext(
         Guid id,
         CancellationToken cancellationToken)
@@ -35,18 +34,16 @@ public sealed class DocumentsController(
         }
 
         var principal = currentUser.Principal;
-        var canEdit = principal.HasPermission(AppPermissions.DocumentEdit) &&
-            (await authorization.AuthorizeAsync(principal, document, DocumentOperations.Edit)).Succeeded;
-        var canArchive = principal.HasPermission(AppPermissions.DocumentArchive) &&
-            (await authorization.AuthorizeAsync(principal, document, DocumentOperations.Archive)).Succeeded;
-        var canManage = principal.HasPermission(AppPermissions.DocumentManage) &&
-            (await authorization.AuthorizeAsync(principal, document, DocumentOperations.Manage)).Succeeded;
+        var canUpdate = principal.HasPermission(AppPermissions.DocumentUpdate) &&
+            (await authorization.AuthorizeAsync(principal, document, DocumentOperations.Update)).Succeeded;
+        var canDelete = principal.HasPermission(AppPermissions.DocumentDelete) &&
+            (await authorization.AuthorizeAsync(principal, document, DocumentOperations.Delete)).Succeeded;
 
-        if (!canEdit && !canArchive && !canManage)
+        if (!canUpdate && !canDelete)
         {
             return Forbid();
         }
 
-        return Ok(new DocumentManagementContextResponse(document.Id, canEdit, canArchive, canManage));
+        return Ok(new DocumentManagementContextResponse(document.Id, canUpdate, canDelete));
     }
 }

@@ -12,18 +12,17 @@ public static class AppRoles
             [DocumentAuthor] =
             [
                 AppPermissions.DocumentCreate,
-                AppPermissions.DocumentView,
-                AppPermissions.DocumentEdit
+                AppPermissions.DocumentRead,
+                AppPermissions.DocumentUpdate
             ],
             [RecordsManager] =
             [
                 AppPermissions.DocumentCreate,
-                AppPermissions.DocumentView,
-                AppPermissions.DocumentEdit,
-                AppPermissions.DocumentArchive,
-                AppPermissions.DocumentManage
+                AppPermissions.DocumentRead,
+                AppPermissions.DocumentUpdate,
+                AppPermissions.DocumentDelete
             ],
-            [ComplianceAuditor] = [AppPermissions.DocumentView]
+            [ComplianceAuditor] = [AppPermissions.DocumentRead]
         };
 
     public static bool IsDefined(string roleName) =>

@@ -40,10 +40,10 @@ Expected results:
 
 - No token: `401 Unauthorized`.
 - `unknown-dev`: authenticated token, but no app profile, so protected endpoints return `403 Forbidden`.
-- `compliance-auditor-dev`: can view non-confidential same-tenant documents; cannot create, edit, archive, or manage documents.
-- `document-author-dev`: can create documents and edit assigned same-tenant documents; cannot manage confidential or non-owned documents.
-- `records-manager-dev`: has archive/manage endpoint permissions, but needs `amr=mfa` for break-glass access to confidential or non-owned documents.
-- `records-manager-dev` with `amr=mfa`: can manage same-tenant confidential or non-owned documents.
+- `compliance-auditor-dev`: can read non-confidential same-tenant documents; cannot create, update, or delete documents.
+- `document-author-dev`: can create documents and update assigned same-tenant documents; cannot delete confidential or non-owned documents.
+- `records-manager-dev`: has delete endpoint permission, but needs `amr=mfa` for break-glass access to confidential or non-owned documents.
+- `records-manager-dev` with `amr=mfa`: can update or delete same-tenant confidential or non-owned documents.
 - `outside-compliance-auditor-dev`: can view tenant B documents, but tenant A documents are forbidden by tenant mismatch.
 
 ## Project Shape
@@ -62,18 +62,18 @@ Endpoint permissions are service-owned document permissions:
 | Endpoint kind | Permission |
 | --- | --- |
 | Create | `documents:create` |
-| View | `documents:view` |
-| Edit | `documents:edit` |
-| Archive | `documents:archive` |
-| Management context | `documents:edit` OR `documents:archive` OR `documents:manage` |
+| Read | `documents:read` |
+| Update | `documents:update` |
+| Delete | `documents:delete` |
+| Management context | `documents:update` OR `documents:delete` |
 
 Role assignments live in app data and are tied to the external `sub`. Role names and permission mappings stay fixed in code:
 
-- `document-author`: create, view, edit
-- `records-manager`: create, view, edit, archive, manage
-- `compliance-auditor`: view
+- `document-author`: create, read, update
+- `records-manager`: create, read, update, delete
+- `compliance-auditor`: read
 
-`DocumentAbacHandler` then enforces resource rules: tenant mismatch is a hard deny, owners can view/edit/archive assigned documents when endpoint permissions allow it, compliance auditors can view non-confidential same-tenant documents, and records-manager+MFA is the break-glass path for confidential or non-owned management actions.
+`DocumentAbacHandler` then enforces resource rules: tenant mismatch is a hard deny, owners can read/update/delete assigned documents when endpoint permissions allow it, compliance auditors can read non-confidential same-tenant documents, and records-manager+MFA is the break-glass path for confidential or non-owned updates/deletes.
 
 Endpoints that need one of several permissions use `RequireAnyPermission(...)`. Do not stack multiple `.RequireAuthorization(...)` calls to model OR logic, because ASP.NET Core combines multiple authorization requirements as AND. The Minimal API and controller management-context endpoints both demonstrate the OR case.
 
