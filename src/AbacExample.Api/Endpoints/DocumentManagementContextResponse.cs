@@ -1,7 +1,7 @@
 namespace AbacExample.Api.Endpoints;
 
-public sealed record CaseFileManagementContextResponse(
+public sealed record DocumentManagementContextResponse(
     Guid Id,
     bool CanEdit,
-    bool CanClose,
+    bool CanArchive,
     bool CanManage);

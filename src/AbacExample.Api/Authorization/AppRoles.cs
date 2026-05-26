@@ -2,28 +2,28 @@ namespace AbacExample.Api.Authorization;
 
 public static class AppRoles
 {
-    public const string CaseAgent = "case-agent";
-    public const string CaseSupervisor = "case-supervisor";
-    public const string Auditor = "auditor";
+    public const string DocumentAuthor = "document-author";
+    public const string RecordsManager = "records-manager";
+    public const string ComplianceAuditor = "compliance-auditor";
 
     public static readonly IReadOnlyDictionary<string, string[]> DefaultPermissions =
         new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
         {
-            [CaseAgent] =
+            [DocumentAuthor] =
             [
-                AppPermissions.CaseFileCreate,
-                AppPermissions.CaseFileView,
-                AppPermissions.CaseFileEdit
+                AppPermissions.DocumentCreate,
+                AppPermissions.DocumentView,
+                AppPermissions.DocumentEdit
             ],
-            [CaseSupervisor] =
+            [RecordsManager] =
             [
-                AppPermissions.CaseFileCreate,
-                AppPermissions.CaseFileView,
-                AppPermissions.CaseFileEdit,
-                AppPermissions.CaseFileClose,
-                AppPermissions.CaseFileManage
+                AppPermissions.DocumentCreate,
+                AppPermissions.DocumentView,
+                AppPermissions.DocumentEdit,
+                AppPermissions.DocumentArchive,
+                AppPermissions.DocumentManage
             ],
-            [Auditor] = [AppPermissions.CaseFileView]
+            [ComplianceAuditor] = [AppPermissions.DocumentView]
         };
 
     public static bool IsDefined(string roleName) =>

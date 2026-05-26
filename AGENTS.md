@@ -6,10 +6,10 @@ This repository is a lean ASP.NET Core ABAC sample targeting .NET 10. The soluti
 
 - `src/AbacExample.Authorization` contains reusable authorization primitives for multiple services: claim constants, profile contracts, claims transformation, current-user access, permission requirements, Minimal API permission extensions, and controller permission attributes.
 - `src/AbacExample.Api/Program.cs` wires authentication, EF Core, authorization policies, controllers, Minimal API endpoints, and OpenAPI.
-- `src/AbacExample.Api/Authorization` contains case-file permission constants, fixed role mappings, EF-backed profile loading, and `CaseFileAbacHandler`.
-- `src/AbacExample.Api/Data` contains `AppDbContext`, app-owned identity/case-file entities, and Development seed data.
-- `src/AbacExample.Api/Endpoints/CaseFileEndpoints.cs` keeps Minimal API route definitions and resource authorization calls.
-- `src/AbacExample.Api/Controllers/CaseFilesController.cs` shows controller-based permission usage.
+- `src/AbacExample.Api/Authorization` contains document permission constants, fixed role mappings, EF-backed profile loading, and `DocumentAbacHandler`.
+- `src/AbacExample.Api/Data` contains `AppDbContext`, app-owned identity/document entities, and Development seed data.
+- `src/AbacExample.Api/Endpoints/DocumentEndpoints.cs` keeps Minimal API route definitions and resource authorization calls.
+- `src/AbacExample.Api/Controllers/DocumentsController.cs` shows controller-based permission usage.
 - `src/AbacExample.Api/OpenApi` contains OpenAPI transformers for bearer-token metadata.
 
 ## Build, Test, and Development Commands
@@ -23,15 +23,15 @@ dotnet run --project .\src\AbacExample.Api\AbacExample.Api.csproj
 ```
 
 `restore` downloads NuGet packages, `build` compiles the sample with nullable reference checks enabled, and `run` starts the local API using the project launch settings and EF Core InMemory provider.
-Use `dotnet user-jwts create --project .\src\AbacExample.Api\AbacExample.Api.csproj --name auditor-dev --output token` to create a local token, then paste it into Swagger UI at `/swagger`.
+Use `dotnet user-jwts create --project .\src\AbacExample.Api\AbacExample.Api.csproj --name compliance-auditor-dev --output token` to create a local token, then paste it into Swagger UI at `/swagger`.
 
 ## Coding Style & Naming Conventions
 
-Use standard C# formatting: four-space indentation, file-scoped namespaces, nullable-aware code, and implicit usings. Keep public types in files named after the type, for example `AppPermissions.cs` or `CaseFileAbacHandler.cs`. Permission strings follow the `resource:action` pattern, such as `case-files:view`. Keep reusable auth plumbing in `AbacExample.Authorization`; keep service-specific permissions, roles, data, and resource handlers in `AbacExample.Api`.
+Use standard C# formatting: four-space indentation, file-scoped namespaces, nullable-aware code, and implicit usings. Keep public types in files named after the type, for example `AppPermissions.cs` or `DocumentAbacHandler.cs`. Permission strings follow the `resource:action` pattern, such as `documents:view`. Keep reusable auth plumbing in `AbacExample.Authorization`; keep service-specific permissions, roles, data, and resource handlers in `AbacExample.Api`.
 
 ## Testing Guidelines
 
-There is currently no test project. Before handing off changes, run `dotnet build .\AspNetCoreAbacExample.slnx`. If tests are added, place them under `tests/`, name projects with a `.Tests` suffix, and use focused test names such as `CaseFileAbacHandler_DeniesTenantMismatch`.
+There is currently no test project. Before handing off changes, run `dotnet build .\AspNetCoreAbacExample.slnx`. If tests are added, place them under `tests/`, name projects with a `.Tests` suffix, and use focused test names such as `DocumentAbacHandler_DeniesTenantMismatch`.
 
 ## Commit & Pull Request Guidelines
 
