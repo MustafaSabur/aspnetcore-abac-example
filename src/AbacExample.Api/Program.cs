@@ -41,6 +41,7 @@ builder.Services.AddAuthorizationBuilder()
     .AddAppPermissionPolicies();
 
 builder.Services.AddAbacAuthorizationCore();
+builder.Services.AddAppAuthorizationProfileEnrichment();
 builder.Services.AddControllers();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<IAppAuthorizationProfileLoader, DbAppAuthorizationProfileLoader>();

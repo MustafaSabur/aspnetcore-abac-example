@@ -2,7 +2,7 @@
 
 This is a buildable .NET 10 ASP.NET Core Web API sample for ABAC-style authorization in a realistic documents service. The external JWT stays small and identifies the subject with `sub`; the app loads its own authorization profile, expands fixed app roles into endpoint permissions, and then applies resource-specific rules for each document.
 
-The solution also includes `AbacExample.Authorization`, a reusable authorization library that can be shared by multiple ASP.NET Core services. The API project owns the document permissions, roles, EF Core data, endpoints, and ABAC rules.
+The solution also includes `AbacExample.Authorization`, a reusable authorization library that can be shared by multiple ASP.NET Core services. The shared core can be used with already-enriched internal tokens, while local profile enrichment is opt-in for services that still load authorization data themselves. The API project owns the document permissions, roles, EF Core data, endpoints, and ABAC rules.
 
 ## Run
 
@@ -48,7 +48,7 @@ Expected results:
 
 ## Project Shape
 
-- `src/AbacExample.Authorization` contains reusable authorization primitives: app claim constants, profile loading contract, claims enrichment, current-user access, permission requirements, Minimal API permission extensions, and controller permission attributes.
+- `src/AbacExample.Authorization` contains reusable authorization primitives: app claim constants, profile loading contract, optional claims enrichment, current-user access, permission requirements, Minimal API permission extensions, and controller permission attributes.
 - `src/AbacExample.Api/Authorization` contains document permission constants, fixed role mappings, EF-backed profile loading, and `DocumentAbacHandler`.
 - `src/AbacExample.Api/Data` contains `AppDbContext`, app-owned user/role/document entities, and Development seed data.
 - `src/AbacExample.Api/Endpoints/DocumentEndpoints.cs` maps Minimal API document routes and performs resource authorization.
@@ -80,3 +80,5 @@ Endpoints that need one of several permissions use `RequireAnyPermission(...)`. 
 ## Real App Notes
 
 Replace EF Core InMemory with the consuming app's database provider. Replace `dotnet user-jwts` with a real issuer by configuring JWT bearer settings such as `Authority` and `Audience`, and keep `MapInboundClaims = false` so claim names like `sub` and `amr` remain stable.
+
+For a microservices platform, downstream APIs can call `AddAbacAuthorizationCore()` when a gateway or identity service already issues internal tokens with normalized app claims. Services that need to load app authorization profiles locally can also call `AddAppAuthorizationProfileEnrichment()` and provide an `IAppAuthorizationProfileLoader`.

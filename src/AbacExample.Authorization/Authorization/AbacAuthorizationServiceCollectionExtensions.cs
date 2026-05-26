@@ -11,9 +11,15 @@ public static class AbacAuthorizationServiceCollectionExtensions
     {
         services.AddHttpContextAccessor();
         services.TryAddScoped<ICurrentUser, CurrentUser>();
-        services.TryAddEnumerable(ServiceDescriptor.Transient<IClaimsTransformation, AppClaimsTransformation>());
         services.TryAddEnumerable(ServiceDescriptor.Scoped<IAuthorizationHandler, PermissionAuthorizationHandler>());
         services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddAppAuthorizationProfileEnrichment(this IServiceCollection services)
+    {
+        services.TryAddEnumerable(ServiceDescriptor.Transient<IClaimsTransformation, AppClaimsTransformation>());
 
         return services;
     }
