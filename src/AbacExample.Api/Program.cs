@@ -1,8 +1,8 @@
+using AbacExample.Authorization;
 using AbacExample.Api.Authorization;
 using AbacExample.Api.Data;
 using AbacExample.Api.Endpoints;
 using AbacExample.Api.OpenApi;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -40,13 +40,11 @@ builder.Services.AddAuthorizationBuilder()
     .SetFallbackPolicy(appUserPolicy)
     .AddAppPermissionPolicies();
 
+builder.Services.AddAbacAuthorizationCore();
+builder.Services.AddControllers();
 builder.Services.AddSingleton(TimeProvider.System);
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<ICurrentUser, CurrentUser>();
-builder.Services.AddTransient<IClaimsTransformation, AppClaimsTransformation>();
 builder.Services.AddScoped<IAppAuthorizationProfileLoader, DbAppAuthorizationProfileLoader>();
-builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
-builder.Services.AddScoped<IAuthorizationHandler, DocumentAbacHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, CaseFileAbacHandler>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseInMemoryDatabase("AbacExample"));
@@ -59,7 +57,7 @@ builder.Services.AddOpenApi(options =>
         {
             Title = "ASP.NET Core ABAC Example",
             Version = "v1",
-            Description = "Local ABAC sample API with endpoint permissions and resource-based authorization."
+            Description = "Local case files ABAC sample API with endpoint permissions and resource-based authorization."
         };
 
         return Task.CompletedTask;
@@ -86,6 +84,7 @@ if (app.Environment.IsDevelopment())
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapDocumentEndpoints();
+app.MapCaseFileEndpoints();
+app.MapControllers();
 
 app.Run();

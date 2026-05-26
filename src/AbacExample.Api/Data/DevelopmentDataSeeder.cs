@@ -6,24 +6,24 @@ namespace AbacExample.Api.Data;
 
 public static class DevelopmentDataSeeder
 {
-    public const string AdminSubject = "admin-dev";
-    public const string EditorSubject = "editor-dev";
-    public const string ReaderSubject = "reader-dev";
-    public const string OutsiderSubject = "outsider-dev";
+    public const string CaseSupervisorSubject = "case-supervisor-dev";
+    public const string CaseAgentSubject = "case-agent-dev";
+    public const string AuditorSubject = "auditor-dev";
+    public const string OutsideAuditorSubject = "outside-auditor-dev";
 
     public static readonly Guid TenantAId = Guid.Parse("11111111-1111-1111-1111-111111111111");
     public static readonly Guid TenantBId = Guid.Parse("22222222-2222-2222-2222-222222222222");
 
-    public static readonly Guid AdminUserId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
-    public static readonly Guid EditorUserId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
-    public static readonly Guid ReaderUserId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
-    public static readonly Guid OutsiderUserId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+    public static readonly Guid CaseSupervisorUserId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    public static readonly Guid CaseAgentUserId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+    public static readonly Guid AuditorUserId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+    public static readonly Guid OutsideAuditorUserId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
 
-    public static readonly Guid PublicDocumentId = Guid.Parse("10000000-0000-0000-0000-000000000001");
-    public static readonly Guid ConfidentialDocumentId = Guid.Parse("10000000-0000-0000-0000-000000000002");
-    public static readonly Guid ReaderOwnedDocumentId = Guid.Parse("10000000-0000-0000-0000-000000000003");
-    public static readonly Guid AdminOwnedConfidentialDocumentId = Guid.Parse("10000000-0000-0000-0000-000000000004");
-    public static readonly Guid OutsiderDocumentId = Guid.Parse("20000000-0000-0000-0000-000000000001");
+    public static readonly Guid PublicCaseFileId = Guid.Parse("10000000-0000-0000-0000-000000000001");
+    public static readonly Guid ConfidentialCaseFileId = Guid.Parse("10000000-0000-0000-0000-000000000002");
+    public static readonly Guid AgentOwnedCaseFileId = Guid.Parse("10000000-0000-0000-0000-000000000003");
+    public static readonly Guid SupervisorOwnedConfidentialCaseFileId = Guid.Parse("10000000-0000-0000-0000-000000000004");
+    public static readonly Guid OutsideTenantCaseFileId = Guid.Parse("20000000-0000-0000-0000-000000000001");
 
     public static async Task SeedDevelopmentDataAsync(this WebApplication app)
     {
@@ -40,58 +40,58 @@ public static class DevelopmentDataSeeder
             return;
         }
 
-        var admin = CreateUser(AdminUserId, AdminSubject, TenantAId);
-        var editor = CreateUser(EditorUserId, EditorSubject, TenantAId);
-        var reader = CreateUser(ReaderUserId, ReaderSubject, TenantAId);
-        var outsider = CreateUser(OutsiderUserId, OutsiderSubject, TenantBId);
+        var caseSupervisor = CreateUser(CaseSupervisorUserId, CaseSupervisorSubject, TenantAId);
+        var caseAgent = CreateUser(CaseAgentUserId, CaseAgentSubject, TenantAId);
+        var auditor = CreateUser(AuditorUserId, AuditorSubject, TenantAId);
+        var outsideAuditor = CreateUser(OutsideAuditorUserId, OutsideAuditorSubject, TenantBId);
 
-        db.AppUsers.AddRange(admin, editor, reader, outsider);
+        db.AppUsers.AddRange(caseSupervisor, caseAgent, auditor, outsideAuditor);
         db.AppUserRoles.AddRange(
-            CreateRole(admin.Id, AppRoles.Admin),
-            CreateRole(editor.Id, AppRoles.Editor),
-            CreateRole(reader.Id, AppRoles.Reader),
-            CreateRole(outsider.Id, AppRoles.Reader));
+            CreateRole(caseSupervisor.Id, AppRoles.CaseSupervisor),
+            CreateRole(caseAgent.Id, AppRoles.CaseAgent),
+            CreateRole(auditor.Id, AppRoles.Auditor),
+            CreateRole(outsideAuditor.Id, AppRoles.Auditor));
 
-        db.Documents.AddRange(
-            new Document
+        db.CaseFiles.AddRange(
+            new CaseFile
             {
-                Id = PublicDocumentId,
+                Id = PublicCaseFileId,
                 TenantId = TenantAId,
-                OwnerId = EditorUserId,
+                OwnerId = CaseAgentUserId,
                 IsConfidential = false,
-                Content = "Tenant A public document owned by editor-dev."
+                Summary = "Tenant A standard billing dispute owned by case-agent-dev."
             },
-            new Document
+            new CaseFile
             {
-                Id = ConfidentialDocumentId,
+                Id = ConfidentialCaseFileId,
                 TenantId = TenantAId,
-                OwnerId = EditorUserId,
+                OwnerId = CaseAgentUserId,
                 IsConfidential = true,
-                Content = "Tenant A confidential document owned by editor-dev."
+                Summary = "Tenant A confidential workplace investigation owned by case-agent-dev."
             },
-            new Document
+            new CaseFile
             {
-                Id = ReaderOwnedDocumentId,
+                Id = AgentOwnedCaseFileId,
                 TenantId = TenantAId,
-                OwnerId = ReaderUserId,
+                OwnerId = CaseAgentUserId,
                 IsConfidential = false,
-                Content = "Tenant A public document owned by reader-dev."
+                Summary = "Tenant A customer follow-up assigned to case-agent-dev."
             },
-            new Document
+            new CaseFile
             {
-                Id = AdminOwnedConfidentialDocumentId,
+                Id = SupervisorOwnedConfidentialCaseFileId,
                 TenantId = TenantAId,
-                OwnerId = AdminUserId,
+                OwnerId = CaseSupervisorUserId,
                 IsConfidential = true,
-                Content = "Tenant A confidential document owned by admin-dev."
+                Summary = "Tenant A supervisor-owned confidential escalation."
             },
-            new Document
+            new CaseFile
             {
-                Id = OutsiderDocumentId,
+                Id = OutsideTenantCaseFileId,
                 TenantId = TenantBId,
-                OwnerId = OutsiderUserId,
+                OwnerId = OutsideAuditorUserId,
                 IsConfidential = false,
-                Content = "Tenant B document owned by outsider-dev."
+                Summary = "Tenant B case file visible only to tenant B users."
             });
 
         await db.SaveChangesAsync();

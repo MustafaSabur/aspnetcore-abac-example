@@ -1,8 +1,8 @@
 # ASP.NET Core ABAC Example
 
-This is a buildable .NET 10 ASP.NET Core Web API sample for ABAC-style authorization. The external JWT stays small and identifies the subject with `sub`; the app loads its own authorization profile, expands fixed app roles into endpoint permissions, and then applies resource-specific rules for each document.
+This is a buildable .NET 10 ASP.NET Core Web API sample for ABAC-style authorization in a realistic case-files service. The external JWT stays small and identifies the subject with `sub`; the app loads its own authorization profile, expands fixed app roles into endpoint permissions, and then applies resource-specific rules for each case file.
 
-The sample uses EF Core InMemory and Development seed data so it can run locally without database setup.
+The solution also includes `AbacExample.Authorization`, a reusable authorization library that can be shared by multiple ASP.NET Core services. The API project owns the case-file permissions, roles, EF Core data, endpoints, and ABAC rules.
 
 ## Run
 
@@ -20,62 +20,62 @@ Create local development tokens with `dotnet user-jwts`. Paste the raw token val
 ```powershell
 $project = ".\src\AbacExample.Api\AbacExample.Api.csproj"
 
-$admin = dotnet user-jwts create --project $project --name admin-dev --output token
-$mfaAdmin = dotnet user-jwts create --project $project --name admin-dev --claim amr=mfa --output token
-$editor = dotnet user-jwts create --project $project --name editor-dev --output token
-$reader = dotnet user-jwts create --project $project --name reader-dev --output token
-$mfaReader = dotnet user-jwts create --project $project --name reader-dev --claim amr=mfa --output token
-$outsider = dotnet user-jwts create --project $project --name outsider-dev --output token
+$supervisor = dotnet user-jwts create --project $project --name case-supervisor-dev --output token
+$mfaSupervisor = dotnet user-jwts create --project $project --name case-supervisor-dev --claim amr=mfa --output token
+$agent = dotnet user-jwts create --project $project --name case-agent-dev --output token
+$auditor = dotnet user-jwts create --project $project --name auditor-dev --output token
+$outsideAuditor = dotnet user-jwts create --project $project --name outside-auditor-dev --output token
 $unknown = dotnet user-jwts create --project $project --name unknown-dev --output token
 ```
 
-Useful seeded document IDs:
+Useful seeded case-file IDs:
 
 - Public tenant A: `10000000-0000-0000-0000-000000000001`
 - Confidential tenant A: `10000000-0000-0000-0000-000000000002`
-- Reader-owned tenant A: `10000000-0000-0000-0000-000000000003`
-- Admin-owned confidential tenant A: `10000000-0000-0000-0000-000000000004`
+- Agent-owned tenant A: `10000000-0000-0000-0000-000000000003`
+- Supervisor-owned confidential tenant A: `10000000-0000-0000-0000-000000000004`
 - Public tenant B: `20000000-0000-0000-0000-000000000001`
 
 Expected results:
 
 - No token: `401 Unauthorized`.
 - `unknown-dev`: authenticated token, but no app profile, so protected endpoints return `403 Forbidden`.
-- `reader-dev`: can read public same-tenant documents; cannot create, update, delete, or read confidential non-owned documents.
-- `reader-dev` with `amr=mfa`: still cannot read confidential non-owned documents because break-glass is admin-only.
-- `editor-dev`: can create documents and update documents it owns; it cannot update another user's document.
-- `editor-dev`: can call `GET /documents/{id}/management-context` for documents it can update, even though it does not have delete permission.
-- `admin-dev` with `amr=mfa`: can use break-glass access on same-tenant confidential or non-owned documents.
-- `outsider-dev`: can read tenant B documents, but tenant A documents are forbidden by tenant mismatch.
+- `auditor-dev`: can view non-confidential same-tenant case files; cannot create, edit, close, or manage case files.
+- `case-agent-dev`: can create case files and edit assigned same-tenant case files; cannot manage confidential or non-owned case files.
+- `case-supervisor-dev`: has close/manage endpoint permissions, but needs `amr=mfa` for break-glass access to confidential or non-owned case files.
+- `case-supervisor-dev` with `amr=mfa`: can manage same-tenant confidential or non-owned case files.
+- `outside-auditor-dev`: can view tenant B case files, but tenant A case files are forbidden by tenant mismatch.
 
 ## Project Shape
 
-- `Authorization/` defines identity-provider claim names, app claim names, fixed roles, permission policies, current-user access, and `DocumentAbacHandler`.
-- `Data/` contains `AppDbContext`, app-owned user/role/document entities, and Development seed data.
-- `Endpoints/DocumentEndpoints.cs` maps Minimal API document routes and performs resource authorization.
-- `OpenApi/` adds bearer security metadata to the generated OpenAPI document.
+- `src/AbacExample.Authorization` contains reusable authorization primitives: app claim constants, profile loading contract, claims enrichment, current-user access, permission requirements, Minimal API permission extensions, and controller permission attributes.
+- `src/AbacExample.Api/Authorization` contains case-file permission constants, fixed role mappings, EF-backed profile loading, and `CaseFileAbacHandler`.
+- `src/AbacExample.Api/Data` contains `AppDbContext`, app-owned user/role/case-file entities, and Development seed data.
+- `src/AbacExample.Api/Endpoints/CaseFileEndpoints.cs` maps Minimal API case-file routes and performs resource authorization.
+- `src/AbacExample.Api/Controllers/CaseFilesController.cs` demonstrates the same permission model on a controller action.
+- `src/AbacExample.Api/OpenApi` adds bearer security metadata to the generated OpenAPI document.
 
 ## Authorization Model
 
-Endpoint permissions are coarse CRUD gates:
+Endpoint permissions are service-owned case-file permissions:
 
 | Endpoint kind | Permission |
 | --- | --- |
-| Create | `documents:create` |
-| Read | `documents:read` |
-| Update | `documents:update` |
-| Delete | `documents:delete` |
-| Management context | `documents:update` OR `documents:delete` |
+| Create | `case-files:create` |
+| View | `case-files:view` |
+| Edit | `case-files:edit` |
+| Close | `case-files:close` |
+| Management context | `case-files:edit` OR `case-files:close` OR `case-files:manage` |
 
 Role assignments live in app data and are tied to the external `sub`. Role names and permission mappings stay fixed in code:
 
-- `admin`: create, read, update, delete
-- `editor`: create, read, update
-- `reader`: read
+- `case-agent`: create, view, edit
+- `case-supervisor`: create, view, edit, close, manage
+- `auditor`: view
 
-`DocumentAbacHandler` then enforces resource rules: tenant mismatch is a hard deny, owners can read/update/delete their own documents when endpoint permissions allow it, non-owners can read public same-tenant documents, and admin+MFA is the only break-glass path for confidential or non-owned updates/deletes.
+`CaseFileAbacHandler` then enforces resource rules: tenant mismatch is a hard deny, owners can view/edit/close assigned case files when endpoint permissions allow it, auditors can view non-confidential same-tenant case files, and supervisor+MFA is the break-glass path for confidential or non-owned management actions.
 
-Endpoints that need one of several permissions use `RequireAnyPermission(...)`. Do not stack multiple `.RequireAuthorization(...)` calls to model OR logic, because ASP.NET Core combines multiple authorization requirements as AND. `GET /documents/{id}/management-context` demonstrates the OR case: the endpoint admits callers with either update or delete permission, then returns only the actions that also pass the document resource rules.
+Endpoints that need one of several permissions use `RequireAnyPermission(...)`. Do not stack multiple `.RequireAuthorization(...)` calls to model OR logic, because ASP.NET Core combines multiple authorization requirements as AND. The Minimal API and controller management-context endpoints both demonstrate the OR case.
 
 ## Real App Notes
 

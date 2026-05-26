@@ -1,4 +1,4 @@
-namespace AbacExample.Api.Authorization;
+namespace AbacExample.Authorization;
 
 public static class IdentityProviderClaims
 {

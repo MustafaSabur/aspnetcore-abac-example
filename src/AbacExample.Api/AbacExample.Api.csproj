@@ -15,4 +15,8 @@
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AbacExample.Authorization\AbacExample.Authorization.csproj" />
+  </ItemGroup>
+
 </Project>

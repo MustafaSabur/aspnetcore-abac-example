@@ -1,6 +1,7 @@
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Authorization;
 
-namespace AbacExample.Api.Authorization;
+namespace AbacExample.Authorization;
 
 public static class PermissionPolicyBuilderExtensions
 {

@@ -1,3 +1,4 @@
+using AbacExample.Authorization;
 using AbacExample.Api.Data;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,7 +1,8 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Logging;
 
-namespace AbacExample.Api.Authorization;
+namespace AbacExample.Authorization;
 
 public sealed class AppClaimsTransformation(
     IAppAuthorizationProfileLoader profileLoader,

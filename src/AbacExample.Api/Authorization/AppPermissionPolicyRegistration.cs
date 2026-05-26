@@ -1,3 +1,4 @@
+using AbacExample.Authorization;
 using Microsoft.AspNetCore.Authorization;
 
 namespace AbacExample.Api.Authorization;

@@ -1,6 +1,6 @@
 using System.Security.Claims;
 
-namespace AbacExample.Api.Authorization;
+namespace AbacExample.Authorization;
 
 public interface ICurrentUser
 {

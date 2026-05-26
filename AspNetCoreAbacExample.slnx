@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/AbacExample.Api/AbacExample.Api.csproj" />
+    <Project Path="src/AbacExample.Authorization/AbacExample.Authorization.csproj" />
   </Folder>
 </Solution>

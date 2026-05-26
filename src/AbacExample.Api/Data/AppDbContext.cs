@@ -5,7 +5,7 @@ namespace AbacExample.Api.Data;
 
 public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
-    public DbSet<Document> Documents => Set<Document>();
+    public DbSet<CaseFile> CaseFiles => Set<CaseFile>();
     public DbSet<AppUser> AppUsers => Set<AppUser>();
     public DbSet<AppUserRole> AppUserRoles => Set<AppUserRole>();
 
@@ -27,9 +27,9 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
                 .HasForeignKey(x => x.AppUserId);
         });
 
-        modelBuilder.Entity<Document>(document =>
+        modelBuilder.Entity<CaseFile>(caseFile =>
         {
-            document.HasKey(x => x.Id);
+            caseFile.HasKey(x => x.Id);
         });
     }
 }
