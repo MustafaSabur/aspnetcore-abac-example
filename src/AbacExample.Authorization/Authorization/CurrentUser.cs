@@ -1,6 +1,7 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 
-namespace AbacExample.Api.Authorization;
+namespace AbacExample.Authorization;
 
 public sealed class CurrentUser(IHttpContextAccessor httpContextAccessor) : ICurrentUser
 {

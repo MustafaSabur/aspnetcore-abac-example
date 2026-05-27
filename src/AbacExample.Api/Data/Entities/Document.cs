@@ -6,5 +6,5 @@ public sealed class Document
     public required Guid TenantId { get; init; }
     public required Guid OwnerId { get; init; }
     public required bool IsConfidential { get; init; }
-    public string? Content { get; set; }
+    public string? Summary { get; set; }
 }

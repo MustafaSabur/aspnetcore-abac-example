@@ -1,6 +1,6 @@
-namespace AbacExample.Api.Authorization;
+namespace AbacExample.Authorization;
 
-public sealed record AppAuthorizationProfile(
+public sealed record AuthorizationProfile(
     Guid UserId,
     string ExternalSubjectId,
     Guid TenantId,

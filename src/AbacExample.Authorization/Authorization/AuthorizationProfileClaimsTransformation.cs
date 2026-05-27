@@ -1,17 +1,18 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Logging;
 
-namespace AbacExample.Api.Authorization;
+namespace AbacExample.Authorization;
 
-public sealed class AppClaimsTransformation(
-    IAppAuthorizationProfileLoader profileLoader,
-    ILogger<AppClaimsTransformation> logger)
+public sealed class AuthorizationProfileClaimsTransformation(
+    IAuthorizationProfileLoader profileLoader,
+    ILogger<AuthorizationProfileClaimsTransformation> logger)
     : IClaimsTransformation
 {
     public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
     {
         if (principal.Identity?.IsAuthenticated != true ||
-            principal.HasClaim(AppClaims.ProfileLoaded, BooleanClaimValues.True))
+            principal.HasClaim(AuthorizationClaims.ProfileLoaded, BooleanClaimValues.True))
         {
             return principal;
         }
@@ -34,19 +35,19 @@ public sealed class AppClaimsTransformation(
 
         var identity = new ClaimsIdentity("ApplicationAuthorizationProfile");
 
-        identity.AddClaim(new Claim(AppClaims.ProfileLoaded, BooleanClaimValues.True));
-        identity.AddClaim(new Claim(AppClaims.UserId, profile.UserId.ToString()));
-        identity.AddClaim(new Claim(AppClaims.TenantId, profile.TenantId.ToString()));
-        identity.AddClaim(new Claim(AppClaims.ClaimsVersion, profile.ClaimsVersion.ToString()));
+        identity.AddClaim(new Claim(AuthorizationClaims.ProfileLoaded, BooleanClaimValues.True));
+        identity.AddClaim(new Claim(AuthorizationClaims.UserId, profile.UserId.ToString()));
+        identity.AddClaim(new Claim(AuthorizationClaims.TenantId, profile.TenantId.ToString()));
+        identity.AddClaim(new Claim(AuthorizationClaims.ClaimsVersion, profile.ClaimsVersion.ToString()));
 
         foreach (var roleName in profile.RoleNames.Distinct(StringComparer.OrdinalIgnoreCase))
         {
-            identity.AddClaim(new Claim(AppClaims.Role, roleName));
+            identity.AddClaim(new Claim(AuthorizationClaims.Role, roleName));
         }
 
         foreach (var permission in profile.Permissions.Distinct(StringComparer.OrdinalIgnoreCase))
         {
-            identity.AddClaim(new Claim(AppClaims.Permission, permission));
+            identity.AddClaim(new Claim(AuthorizationClaims.Permission, permission));
         }
 
         principal.AddIdentity(identity);

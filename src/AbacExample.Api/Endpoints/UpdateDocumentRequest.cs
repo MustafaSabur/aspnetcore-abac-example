@@ -1,3 +1,3 @@
 namespace AbacExample.Api.Endpoints;
 
-public sealed record UpdateDocumentRequest(string? Content);
+public sealed record UpdateDocumentRequest(string? Summary);

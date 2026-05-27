@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 
-namespace AbacExample.Api.Authorization;
+namespace AbacExample.Authorization;
 
 public sealed class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement>
 {
@@ -9,7 +9,7 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
         PermissionRequirement requirement)
     {
         var userPermissions = context.User
-            .FindAll(AppClaims.Permission)
+            .FindAll(AuthorizationClaims.Permission)
             .Select(claim => claim.Value)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 

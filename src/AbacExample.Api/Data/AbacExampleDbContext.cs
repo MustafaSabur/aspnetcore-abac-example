@@ -3,28 +3,28 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AbacExample.Api.Data;
 
-public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+public sealed class AbacExampleDbContext(DbContextOptions<AbacExampleDbContext> options) : DbContext(options)
 {
     public DbSet<Document> Documents => Set<Document>();
-    public DbSet<AppUser> AppUsers => Set<AppUser>();
-    public DbSet<AppUserRole> AppUserRoles => Set<AppUserRole>();
+    public DbSet<AuthorizationUser> AuthorizationUsers => Set<AuthorizationUser>();
+    public DbSet<AuthorizationUserRole> AuthorizationUserRoles => Set<AuthorizationUserRole>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<AppUser>(user =>
+        modelBuilder.Entity<AuthorizationUser>(user =>
         {
             user.HasKey(x => x.Id);
             user.HasIndex(x => x.ExternalSubjectId).IsUnique();
             user.Property(x => x.ExternalSubjectId).HasMaxLength(256);
         });
 
-        modelBuilder.Entity<AppUserRole>(userRole =>
+        modelBuilder.Entity<AuthorizationUserRole>(userRole =>
         {
-            userRole.HasKey(x => new { x.AppUserId, x.RoleName });
+            userRole.HasKey(x => new { x.AuthorizationUserId, x.RoleName });
             userRole.Property(x => x.RoleName).HasMaxLength(128);
-            userRole.HasOne(x => x.AppUser)
+            userRole.HasOne(x => x.AuthorizationUser)
                 .WithMany(x => x.Roles)
-                .HasForeignKey(x => x.AppUserId);
+                .HasForeignKey(x => x.AuthorizationUserId);
         });
 
         modelBuilder.Entity<Document>(document =>

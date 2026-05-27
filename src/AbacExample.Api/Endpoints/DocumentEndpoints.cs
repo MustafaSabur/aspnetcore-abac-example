@@ -1,3 +1,4 @@
+using AbacExample.Authorization;
 using AbacExample.Api.Authorization;
 using AbacExample.Api.Data;
 using AbacExample.Api.Data.Entities;
@@ -15,25 +16,25 @@ public static class DocumentEndpoints
             .WithTags("Documents");
 
         group.MapPost("/", CreateDocument)
-            .RequireAuthorization(AppPermissions.DocumentCreate)
+            .RequireAuthorization(DocumentPermissions.DocumentCreate)
             .WithName("CreateDocument");
 
         group.MapGet("/{id:guid}", GetDocument)
-            .RequireAuthorization(AppPermissions.DocumentRead)
+            .RequireAuthorization(DocumentPermissions.DocumentRead)
             .WithName("GetDocument");
 
         group.MapPut("/{id:guid}", UpdateDocument)
-            .RequireAuthorization(AppPermissions.DocumentUpdate)
+            .RequireAuthorization(DocumentPermissions.DocumentUpdate)
             .WithName("UpdateDocument");
 
         group.MapDelete("/{id:guid}", DeleteDocument)
-            .RequireAuthorization(AppPermissions.DocumentDelete)
+            .RequireAuthorization(DocumentPermissions.DocumentDelete)
             .WithName("DeleteDocument");
 
         group.MapGet("/{id:guid}/management-context", GetDocumentManagementContext)
             .RequireAnyPermission(
-                AppPermissions.DocumentUpdate,
-                AppPermissions.DocumentDelete)
+                DocumentPermissions.DocumentUpdate,
+                DocumentPermissions.DocumentDelete)
             .WithName("GetDocumentManagementContext");
 
         return app;
@@ -41,7 +42,7 @@ public static class DocumentEndpoints
 
     private static async Task<IResult> CreateDocument(
         CreateDocumentRequest request,
-        AppDbContext db,
+        AbacExampleDbContext db,
         ICurrentUser currentUser,
         CancellationToken cancellationToken)
     {
@@ -51,7 +52,7 @@ public static class DocumentEndpoints
             TenantId = currentUser.TenantId,
             OwnerId = currentUser.UserId,
             IsConfidential = request.IsConfidential,
-            Content = request.Content
+            Summary = request.Summary
         };
 
         db.Documents.Add(document);
@@ -62,7 +63,7 @@ public static class DocumentEndpoints
 
     private static async Task<IResult> GetDocument(
         Guid id,
-        AppDbContext db,
+        AbacExampleDbContext db,
         IAuthorizationService authorization,
         ICurrentUser currentUser,
         CancellationToken cancellationToken)
@@ -89,7 +90,7 @@ public static class DocumentEndpoints
     private static async Task<IResult> UpdateDocument(
         Guid id,
         UpdateDocumentRequest request,
-        AppDbContext db,
+        AbacExampleDbContext db,
         IAuthorizationService authorization,
         ICurrentUser currentUser,
         CancellationToken cancellationToken)
@@ -109,7 +110,7 @@ public static class DocumentEndpoints
             return Results.Forbid();
         }
 
-        document.Content = request.Content;
+        document.Summary = request.Summary;
         await db.SaveChangesAsync(cancellationToken);
 
         return Results.Ok(DocumentResponse.From(document));
@@ -117,7 +118,7 @@ public static class DocumentEndpoints
 
     private static async Task<IResult> DeleteDocument(
         Guid id,
-        AppDbContext db,
+        AbacExampleDbContext db,
         IAuthorizationService authorization,
         ICurrentUser currentUser,
         CancellationToken cancellationToken)
@@ -145,7 +146,7 @@ public static class DocumentEndpoints
 
     private static async Task<IResult> GetDocumentManagementContext(
         Guid id,
-        AppDbContext db,
+        AbacExampleDbContext db,
         IAuthorizationService authorization,
         ICurrentUser currentUser,
         CancellationToken cancellationToken)
@@ -160,9 +161,9 @@ public static class DocumentEndpoints
         }
 
         var principal = currentUser.Principal;
-        var canUpdate = principal.HasPermission(AppPermissions.DocumentUpdate) &&
+        var canUpdate = principal.HasPermission(DocumentPermissions.DocumentUpdate) &&
             (await authorization.AuthorizeAsync(principal, document, DocumentOperations.Update)).Succeeded;
-        var canDelete = principal.HasPermission(AppPermissions.DocumentDelete) &&
+        var canDelete = principal.HasPermission(DocumentPermissions.DocumentDelete) &&
             (await authorization.AuthorizeAsync(principal, document, DocumentOperations.Delete)).Succeeded;
 
         if (!canUpdate && !canDelete)

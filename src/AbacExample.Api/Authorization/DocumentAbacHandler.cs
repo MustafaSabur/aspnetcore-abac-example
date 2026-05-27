@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using AbacExample.Authorization;
 using AbacExample.Api.Data.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
@@ -16,7 +17,7 @@ public sealed class DocumentAbacHandler(ILogger<DocumentAbacHandler> logger)
         var user = context.User;
 
         if (user.Identity?.IsAuthenticated != true ||
-            !user.HasClaim(AppClaims.ProfileLoaded, BooleanClaimValues.True))
+            !user.HasClaim(AuthorizationClaims.ProfileLoaded, BooleanClaimValues.True))
         {
             context.Fail();
             return Task.CompletedTask;
@@ -60,21 +61,21 @@ public sealed class DocumentAbacHandler(ILogger<DocumentAbacHandler> logger)
             return true;
         }
 
-        return CanUseAdminBreakGlass(user);
+        return HasElevatedDocumentAccess(user);
     }
 
     private static bool CanUpdate(ClaimsPrincipal user, Document document) =>
-        IsOwner(user, document) || CanUseAdminBreakGlass(user);
+        IsOwner(user, document) || HasElevatedDocumentAccess(user);
 
     private static bool CanDelete(ClaimsPrincipal user, Document document) =>
-        IsOwner(user, document) || CanUseAdminBreakGlass(user);
+        IsOwner(user, document) || HasElevatedDocumentAccess(user);
 
     private static bool IsOwner(ClaimsPrincipal user, Document document) =>
         user.UserId() == document.OwnerId;
 
-    private static bool CanUseAdminBreakGlass(ClaimsPrincipal user) =>
+    private static bool HasElevatedDocumentAccess(ClaimsPrincipal user) =>
         user.Claims.Any(claim =>
-            claim.Type == AppClaims.Role &&
-            string.Equals(claim.Value, AppRoles.Admin, StringComparison.OrdinalIgnoreCase)) &&
+            claim.Type == AuthorizationClaims.Role &&
+            string.Equals(claim.Value, DocumentRoles.RecordsManager, StringComparison.OrdinalIgnoreCase)) &&
         user.HasMfa();
 }

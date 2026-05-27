@@ -7,8 +7,8 @@ public sealed record DocumentResponse(
     Guid TenantId,
     Guid OwnerId,
     bool IsConfidential,
-    string? Content)
+    string? Summary)
 {
     public static DocumentResponse From(Document document) =>
-        new(document.Id, document.TenantId, document.OwnerId, document.IsConfidential, document.Content);
+        new(document.Id, document.TenantId, document.OwnerId, document.IsConfidential, document.Summary);
 }

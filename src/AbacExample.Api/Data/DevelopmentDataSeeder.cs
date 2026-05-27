@@ -6,24 +6,24 @@ namespace AbacExample.Api.Data;
 
 public static class DevelopmentDataSeeder
 {
-    public const string AdminSubject = "admin-dev";
-    public const string EditorSubject = "editor-dev";
-    public const string ReaderSubject = "reader-dev";
-    public const string OutsiderSubject = "outsider-dev";
+    public const string RecordsManagerSubject = "records-manager-dev";
+    public const string DocumentAuthorSubject = "document-author-dev";
+    public const string ComplianceAuditorSubject = "compliance-auditor-dev";
+    public const string OutsideComplianceAuditorSubject = "outside-compliance-auditor-dev";
 
     public static readonly Guid TenantAId = Guid.Parse("11111111-1111-1111-1111-111111111111");
     public static readonly Guid TenantBId = Guid.Parse("22222222-2222-2222-2222-222222222222");
 
-    public static readonly Guid AdminUserId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
-    public static readonly Guid EditorUserId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
-    public static readonly Guid ReaderUserId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
-    public static readonly Guid OutsiderUserId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+    public static readonly Guid RecordsManagerUserId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    public static readonly Guid DocumentAuthorUserId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+    public static readonly Guid ComplianceAuditorUserId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+    public static readonly Guid OutsideComplianceAuditorUserId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
 
     public static readonly Guid PublicDocumentId = Guid.Parse("10000000-0000-0000-0000-000000000001");
     public static readonly Guid ConfidentialDocumentId = Guid.Parse("10000000-0000-0000-0000-000000000002");
-    public static readonly Guid ReaderOwnedDocumentId = Guid.Parse("10000000-0000-0000-0000-000000000003");
-    public static readonly Guid AdminOwnedConfidentialDocumentId = Guid.Parse("10000000-0000-0000-0000-000000000004");
-    public static readonly Guid OutsiderDocumentId = Guid.Parse("20000000-0000-0000-0000-000000000001");
+    public static readonly Guid AuthorOwnedDocumentId = Guid.Parse("10000000-0000-0000-0000-000000000003");
+    public static readonly Guid RecordsManagerOwnedConfidentialDocumentId = Guid.Parse("10000000-0000-0000-0000-000000000004");
+    public static readonly Guid OutsideTenantDocumentId = Guid.Parse("20000000-0000-0000-0000-000000000001");
 
     public static async Task SeedDevelopmentDataAsync(this WebApplication app)
     {
@@ -33,71 +33,71 @@ public static class DevelopmentDataSeeder
         }
 
         await using var scope = app.Services.CreateAsyncScope();
-        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<AbacExampleDbContext>();
 
-        if (await db.AppUsers.AnyAsync())
+        if (await db.AuthorizationUsers.AnyAsync())
         {
             return;
         }
 
-        var admin = CreateUser(AdminUserId, AdminSubject, TenantAId);
-        var editor = CreateUser(EditorUserId, EditorSubject, TenantAId);
-        var reader = CreateUser(ReaderUserId, ReaderSubject, TenantAId);
-        var outsider = CreateUser(OutsiderUserId, OutsiderSubject, TenantBId);
+        var recordsManager = CreateUser(RecordsManagerUserId, RecordsManagerSubject, TenantAId);
+        var documentAuthor = CreateUser(DocumentAuthorUserId, DocumentAuthorSubject, TenantAId);
+        var auditor = CreateUser(ComplianceAuditorUserId, ComplianceAuditorSubject, TenantAId);
+        var outsideAuditor = CreateUser(OutsideComplianceAuditorUserId, OutsideComplianceAuditorSubject, TenantBId);
 
-        db.AppUsers.AddRange(admin, editor, reader, outsider);
-        db.AppUserRoles.AddRange(
-            CreateRole(admin.Id, AppRoles.Admin),
-            CreateRole(editor.Id, AppRoles.Editor),
-            CreateRole(reader.Id, AppRoles.Reader),
-            CreateRole(outsider.Id, AppRoles.Reader));
+        db.AuthorizationUsers.AddRange(recordsManager, documentAuthor, auditor, outsideAuditor);
+        db.AuthorizationUserRoles.AddRange(
+            CreateRole(recordsManager.Id, DocumentRoles.RecordsManager),
+            CreateRole(documentAuthor.Id, DocumentRoles.DocumentAuthor),
+            CreateRole(auditor.Id, DocumentRoles.ComplianceAuditor),
+            CreateRole(outsideAuditor.Id, DocumentRoles.ComplianceAuditor));
 
         db.Documents.AddRange(
             new Document
             {
                 Id = PublicDocumentId,
                 TenantId = TenantAId,
-                OwnerId = EditorUserId,
+                OwnerId = DocumentAuthorUserId,
                 IsConfidential = false,
-                Content = "Tenant A public document owned by editor-dev."
+                Summary = "Tenant A standard billing dispute owned by document-author-dev."
             },
             new Document
             {
                 Id = ConfidentialDocumentId,
                 TenantId = TenantAId,
-                OwnerId = EditorUserId,
+                OwnerId = DocumentAuthorUserId,
                 IsConfidential = true,
-                Content = "Tenant A confidential document owned by editor-dev."
+                Summary = "Tenant A confidential workplace investigation owned by document-author-dev."
             },
             new Document
             {
-                Id = ReaderOwnedDocumentId,
+                Id = AuthorOwnedDocumentId,
                 TenantId = TenantAId,
-                OwnerId = ReaderUserId,
+                OwnerId = DocumentAuthorUserId,
                 IsConfidential = false,
-                Content = "Tenant A public document owned by reader-dev."
+                Summary = "Tenant A customer follow-up assigned to document-author-dev."
             },
             new Document
             {
-                Id = AdminOwnedConfidentialDocumentId,
+                Id = RecordsManagerOwnedConfidentialDocumentId,
                 TenantId = TenantAId,
-                OwnerId = AdminUserId,
+                OwnerId = RecordsManagerUserId,
                 IsConfidential = true,
-                Content = "Tenant A confidential document owned by admin-dev."
+                Summary = "Tenant A records manager-owned confidential escalation."
             },
             new Document
             {
-                Id = OutsiderDocumentId,
+                Id = OutsideTenantDocumentId,
                 TenantId = TenantBId,
-                OwnerId = OutsiderUserId,
+                OwnerId = OutsideComplianceAuditorUserId,
                 IsConfidential = false,
-                Content = "Tenant B document owned by outsider-dev."
+                Summary = "Tenant B document visible only to tenant B users."
             });
 
         await db.SaveChangesAsync();
     }
 
-    private static AppUser CreateUser(Guid id, string subject, Guid tenantId) =>
+    private static AuthorizationUser CreateUser(Guid id, string subject, Guid tenantId) =>
         new()
         {
             Id = id,
@@ -107,10 +107,10 @@ public static class DevelopmentDataSeeder
             ClaimsVersion = 1
         };
 
-    private static AppUserRole CreateRole(Guid appUserId, string roleName) =>
+    private static AuthorizationUserRole CreateRole(Guid authorizationUserId, string roleName) =>
         new()
         {
-            AppUserId = appUserId,
+            AuthorizationUserId = authorizationUserId,
             RoleName = roleName
         };
 }

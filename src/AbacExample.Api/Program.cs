@@ -1,8 +1,8 @@
+using AbacExample.Authorization;
 using AbacExample.Api.Authorization;
 using AbacExample.Api.Data;
 using AbacExample.Api.Endpoints;
 using AbacExample.Api.OpenApi;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -30,25 +30,24 @@ builder.Services
         options.MapInboundClaims = false;
     });
 
-var appUserPolicy = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
+var authorizationUserPolicy = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
     .RequireAuthenticatedUser()
-    .RequireClaim(AppClaims.ProfileLoaded, BooleanClaimValues.True)
+    .RequireClaim(AuthorizationClaims.ProfileLoaded, BooleanClaimValues.True)
     .Build();
 
 builder.Services.AddAuthorizationBuilder()
-    .SetDefaultPolicy(appUserPolicy)
-    .SetFallbackPolicy(appUserPolicy)
-    .AddAppPermissionPolicies();
+    .SetDefaultPolicy(authorizationUserPolicy)
+    .SetFallbackPolicy(authorizationUserPolicy)
+    .AddDocumentPermissionPolicies();
 
+builder.Services.AddAbacAuthorizationCore();
+builder.Services.AddAuthorizationProfileEnrichment();
+builder.Services.AddControllers();
 builder.Services.AddSingleton(TimeProvider.System);
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<ICurrentUser, CurrentUser>();
-builder.Services.AddTransient<IClaimsTransformation, AppClaimsTransformation>();
-builder.Services.AddScoped<IAppAuthorizationProfileLoader, DbAppAuthorizationProfileLoader>();
-builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+builder.Services.AddScoped<IAuthorizationProfileLoader, DbAuthorizationProfileLoader>();
 builder.Services.AddScoped<IAuthorizationHandler, DocumentAbacHandler>();
 
-builder.Services.AddDbContext<AppDbContext>(options =>
+builder.Services.AddDbContext<AbacExampleDbContext>(options =>
     options.UseInMemoryDatabase("AbacExample"));
 
 builder.Services.AddOpenApi(options =>
@@ -59,7 +58,7 @@ builder.Services.AddOpenApi(options =>
         {
             Title = "ASP.NET Core ABAC Example",
             Version = "v1",
-            Description = "Local ABAC sample API with endpoint permissions and resource-based authorization."
+            Description = "Local documents ABAC sample API with endpoint permissions and resource-based authorization."
         };
 
         return Task.CompletedTask;
@@ -87,5 +86,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapDocumentEndpoints();
+app.MapControllers();
 
 app.Run();
