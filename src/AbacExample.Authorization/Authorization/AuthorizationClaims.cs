@@ -1,6 +1,6 @@
 namespace AbacExample.Authorization;
 
-public static class AppClaims
+public static class AuthorizationClaims
 {
     public const string ProfileLoaded = "app_profile_loaded";
     public const string UserId = "app_user_id";

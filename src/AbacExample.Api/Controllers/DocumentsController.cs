@@ -11,15 +11,15 @@ namespace AbacExample.Api.Controllers;
 [ApiController]
 [Route("controller-documents")]
 public sealed class DocumentsController(
-    AppDbContext db,
+    AbacExampleDbContext db,
     IAuthorizationService authorization,
     ICurrentUser currentUser)
     : ControllerBase
 {
     [HttpGet("{id:guid}/management-context")]
     [RequireAnyPermission(
-        AppPermissions.DocumentUpdate,
-        AppPermissions.DocumentDelete)]
+        DocumentPermissions.DocumentUpdate,
+        DocumentPermissions.DocumentDelete)]
     public async Task<ActionResult<DocumentManagementContextResponse>> GetManagementContext(
         Guid id,
         CancellationToken cancellationToken)
@@ -34,9 +34,9 @@ public sealed class DocumentsController(
         }
 
         var principal = currentUser.Principal;
-        var canUpdate = principal.HasPermission(AppPermissions.DocumentUpdate) &&
+        var canUpdate = principal.HasPermission(DocumentPermissions.DocumentUpdate) &&
             (await authorization.AuthorizeAsync(principal, document, DocumentOperations.Update)).Succeeded;
-        var canDelete = principal.HasPermission(AppPermissions.DocumentDelete) &&
+        var canDelete = principal.HasPermission(DocumentPermissions.DocumentDelete) &&
             (await authorization.AuthorizeAsync(principal, document, DocumentOperations.Delete)).Succeeded;
 
         if (!canUpdate && !canDelete)

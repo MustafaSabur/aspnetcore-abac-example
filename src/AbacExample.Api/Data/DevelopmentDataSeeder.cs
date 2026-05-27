@@ -33,9 +33,9 @@ public static class DevelopmentDataSeeder
         }
 
         await using var scope = app.Services.CreateAsyncScope();
-        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<AbacExampleDbContext>();
 
-        if (await db.AppUsers.AnyAsync())
+        if (await db.AuthorizationUsers.AnyAsync())
         {
             return;
         }
@@ -45,12 +45,12 @@ public static class DevelopmentDataSeeder
         var auditor = CreateUser(ComplianceAuditorUserId, ComplianceAuditorSubject, TenantAId);
         var outsideAuditor = CreateUser(OutsideComplianceAuditorUserId, OutsideComplianceAuditorSubject, TenantBId);
 
-        db.AppUsers.AddRange(recordsManager, documentAuthor, auditor, outsideAuditor);
-        db.AppUserRoles.AddRange(
-            CreateRole(recordsManager.Id, AppRoles.RecordsManager),
-            CreateRole(documentAuthor.Id, AppRoles.DocumentAuthor),
-            CreateRole(auditor.Id, AppRoles.ComplianceAuditor),
-            CreateRole(outsideAuditor.Id, AppRoles.ComplianceAuditor));
+        db.AuthorizationUsers.AddRange(recordsManager, documentAuthor, auditor, outsideAuditor);
+        db.AuthorizationUserRoles.AddRange(
+            CreateRole(recordsManager.Id, DocumentRoles.RecordsManager),
+            CreateRole(documentAuthor.Id, DocumentRoles.DocumentAuthor),
+            CreateRole(auditor.Id, DocumentRoles.ComplianceAuditor),
+            CreateRole(outsideAuditor.Id, DocumentRoles.ComplianceAuditor));
 
         db.Documents.AddRange(
             new Document
@@ -97,7 +97,7 @@ public static class DevelopmentDataSeeder
         await db.SaveChangesAsync();
     }
 
-    private static AppUser CreateUser(Guid id, string subject, Guid tenantId) =>
+    private static AuthorizationUser CreateUser(Guid id, string subject, Guid tenantId) =>
         new()
         {
             Id = id,
@@ -107,10 +107,10 @@ public static class DevelopmentDataSeeder
             ClaimsVersion = 1
         };
 
-    private static AppUserRole CreateRole(Guid appUserId, string roleName) =>
+    private static AuthorizationUserRole CreateRole(Guid authorizationUserId, string roleName) =>
         new()
         {
-            AppUserId = appUserId,
+            AuthorizationUserId = authorizationUserId,
             RoleName = roleName
         };
 }

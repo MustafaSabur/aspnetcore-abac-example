@@ -13,7 +13,7 @@ public static class PermissionPolicyBuilderExtensions
     public static AuthorizationPolicyBuilder RequireAnyPermission(this AuthorizationPolicyBuilder policy, params string[] permissions)
     {
         policy.RequireAuthenticatedUser();
-        policy.RequireClaim(AppClaims.ProfileLoaded, BooleanClaimValues.True);
+        policy.RequireClaim(AuthorizationClaims.ProfileLoaded, BooleanClaimValues.True);
         policy.Requirements.Add(new PermissionRequirement(permissions));
         return policy;
     }

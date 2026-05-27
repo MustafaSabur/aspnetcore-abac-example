@@ -6,12 +6,12 @@ public static class ClaimsPrincipalExtensions
 {
     extension(ClaimsPrincipal user)
     {
-        public Guid? UserId() => user.GetGuidClaim(AppClaims.UserId);
-        public Guid? TenantId() => user.GetGuidClaim(AppClaims.TenantId);
+        public Guid? UserId() => user.GetGuidClaim(AuthorizationClaims.UserId);
+        public Guid? TenantId() => user.GetGuidClaim(AuthorizationClaims.TenantId);
 
         public bool HasPermission(string permission) =>
             user.Claims.Any(claim =>
-                claim.Type == AppClaims.Permission &&
+                claim.Type == AuthorizationClaims.Permission &&
                 string.Equals(claim.Value, permission, StringComparison.OrdinalIgnoreCase));
 
         public bool HasMfa() =>

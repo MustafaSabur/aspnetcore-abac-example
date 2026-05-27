@@ -1,8 +1,8 @@
 namespace AbacExample.Authorization;
 
-public interface IAppAuthorizationProfileLoader
+public interface IAuthorizationProfileLoader
 {
-    Task<AppAuthorizationProfile?> LoadBySubjectAsync(
+    Task<AuthorizationProfile?> LoadBySubjectAsync(
         string subject,
         CancellationToken cancellationToken = default);
 }

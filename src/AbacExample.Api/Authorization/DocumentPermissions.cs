@@ -1,6 +1,6 @@
 namespace AbacExample.Api.Authorization;
 
-public static class AppPermissions
+public static class DocumentPermissions
 {
     public const string DocumentCreate = "documents:create";
     public const string DocumentRead = "documents:read";

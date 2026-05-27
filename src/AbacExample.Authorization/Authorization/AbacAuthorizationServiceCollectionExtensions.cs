@@ -17,9 +17,9 @@ public static class AbacAuthorizationServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddAppAuthorizationProfileEnrichment(this IServiceCollection services)
+    public static IServiceCollection AddAuthorizationProfileEnrichment(this IServiceCollection services)
     {
-        services.TryAddEnumerable(ServiceDescriptor.Transient<IClaimsTransformation, AppClaimsTransformation>());
+        services.TryAddEnumerable(ServiceDescriptor.Transient<IClaimsTransformation, AuthorizationProfileClaimsTransformation>());
 
         return services;
     }

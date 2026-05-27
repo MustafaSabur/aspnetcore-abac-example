@@ -30,24 +30,24 @@ builder.Services
         options.MapInboundClaims = false;
     });
 
-var appUserPolicy = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
+var authorizationUserPolicy = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
     .RequireAuthenticatedUser()
-    .RequireClaim(AppClaims.ProfileLoaded, BooleanClaimValues.True)
+    .RequireClaim(AuthorizationClaims.ProfileLoaded, BooleanClaimValues.True)
     .Build();
 
 builder.Services.AddAuthorizationBuilder()
-    .SetDefaultPolicy(appUserPolicy)
-    .SetFallbackPolicy(appUserPolicy)
-    .AddAppPermissionPolicies();
+    .SetDefaultPolicy(authorizationUserPolicy)
+    .SetFallbackPolicy(authorizationUserPolicy)
+    .AddDocumentPermissionPolicies();
 
 builder.Services.AddAbacAuthorizationCore();
-builder.Services.AddAppAuthorizationProfileEnrichment();
+builder.Services.AddAuthorizationProfileEnrichment();
 builder.Services.AddControllers();
 builder.Services.AddSingleton(TimeProvider.System);
-builder.Services.AddScoped<IAppAuthorizationProfileLoader, DbAppAuthorizationProfileLoader>();
+builder.Services.AddScoped<IAuthorizationProfileLoader, DbAuthorizationProfileLoader>();
 builder.Services.AddScoped<IAuthorizationHandler, DocumentAbacHandler>();
 
-builder.Services.AddDbContext<AppDbContext>(options =>
+builder.Services.AddDbContext<AbacExampleDbContext>(options =>
     options.UseInMemoryDatabase("AbacExample"));
 
 builder.Services.AddOpenApi(options =>

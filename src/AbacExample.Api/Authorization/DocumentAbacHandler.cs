@@ -17,7 +17,7 @@ public sealed class DocumentAbacHandler(ILogger<DocumentAbacHandler> logger)
         var user = context.User;
 
         if (user.Identity?.IsAuthenticated != true ||
-            !user.HasClaim(AppClaims.ProfileLoaded, BooleanClaimValues.True))
+            !user.HasClaim(AuthorizationClaims.ProfileLoaded, BooleanClaimValues.True))
         {
             context.Fail();
             return Task.CompletedTask;
@@ -75,7 +75,7 @@ public sealed class DocumentAbacHandler(ILogger<DocumentAbacHandler> logger)
 
     private static bool CanUseRecordsManagerBreakGlass(ClaimsPrincipal user) =>
         user.Claims.Any(claim =>
-            claim.Type == AppClaims.Role &&
-            string.Equals(claim.Value, AppRoles.RecordsManager, StringComparison.OrdinalIgnoreCase)) &&
+            claim.Type == AuthorizationClaims.Role &&
+            string.Equals(claim.Value, DocumentRoles.RecordsManager, StringComparison.OrdinalIgnoreCase)) &&
         user.HasMfa();
 }

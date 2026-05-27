@@ -7,7 +7,7 @@ This repository is a lean ASP.NET Core ABAC sample targeting .NET 10. The soluti
 - `src/AbacExample.Authorization` contains reusable authorization primitives for multiple services: claim constants, profile contracts, optional claims transformation, current-user access, permission requirements, Minimal API permission extensions, and controller permission attributes.
 - `src/AbacExample.Api/Program.cs` wires authentication, EF Core, authorization policies, controllers, Minimal API endpoints, and OpenAPI.
 - `src/AbacExample.Api/Authorization` contains document permission constants, fixed role mappings, EF-backed profile loading, and `DocumentAbacHandler`.
-- `src/AbacExample.Api/Data` contains `AppDbContext`, app-owned identity/document entities, and Development seed data.
+- `src/AbacExample.Api/Data` contains `AbacExampleDbContext`, app-owned identity/document entities, and Development seed data.
 - `src/AbacExample.Api/Endpoints/DocumentEndpoints.cs` keeps Minimal API route definitions and resource authorization calls.
 - `src/AbacExample.Api/Controllers/DocumentsController.cs` shows controller-based permission usage.
 - `src/AbacExample.Api/OpenApi` contains OpenAPI transformers for bearer-token metadata.
@@ -27,7 +27,7 @@ Use `dotnet user-jwts create --project .\src\AbacExample.Api\AbacExample.Api.csp
 
 ## Coding Style & Naming Conventions
 
-Use standard C# formatting: four-space indentation, file-scoped namespaces, nullable-aware code, and implicit usings. Keep public types in files named after the type, for example `AppPermissions.cs` or `DocumentAbacHandler.cs`. Permission strings follow the `resource:action` pattern, such as `documents:read`. Keep reusable auth plumbing in `AbacExample.Authorization`; keep local profile enrichment opt-in; keep service-specific permissions, roles, data, and resource handlers in `AbacExample.Api`.
+Use standard C# formatting: four-space indentation, file-scoped namespaces, nullable-aware code, and implicit usings. Keep public types in files named after the type, for example `DocumentPermissions.cs` or `DocumentAbacHandler.cs`. Permission strings follow the `resource:action` pattern, such as `documents:read`. Keep reusable auth plumbing in `AbacExample.Authorization`; keep local profile enrichment opt-in; keep service-specific permissions, roles, data, and resource handlers in `AbacExample.Api`.
 
 ## Testing Guidelines
 

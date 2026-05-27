@@ -50,7 +50,7 @@ Expected results:
 
 - `src/AbacExample.Authorization` contains reusable authorization primitives: app claim constants, profile loading contract, optional claims enrichment, current-user access, permission requirements, Minimal API permission extensions, and controller permission attributes.
 - `src/AbacExample.Api/Authorization` contains document permission constants, fixed role mappings, EF-backed profile loading, and `DocumentAbacHandler`.
-- `src/AbacExample.Api/Data` contains `AppDbContext`, app-owned user/role/document entities, and Development seed data.
+- `src/AbacExample.Api/Data` contains `AbacExampleDbContext`, app-owned user/role/document entities, and Development seed data.
 - `src/AbacExample.Api/Endpoints/DocumentEndpoints.cs` maps Minimal API document routes and performs resource authorization.
 - `src/AbacExample.Api/Controllers/DocumentsController.cs` demonstrates the same permission model on a controller action.
 - `src/AbacExample.Api/OpenApi` adds bearer security metadata to the generated OpenAPI document.
@@ -81,4 +81,4 @@ Endpoints that need one of several permissions use `RequireAnyPermission(...)`. 
 
 Replace EF Core InMemory with the consuming app's database provider. Replace `dotnet user-jwts` with a real issuer by configuring JWT bearer settings such as `Authority` and `Audience`, and keep `MapInboundClaims = false` so claim names like `sub` and `amr` remain stable.
 
-For a microservices platform, downstream APIs can call `AddAbacAuthorizationCore()` when a gateway or identity service already issues internal tokens with normalized app claims. Services that need to load app authorization profiles locally can also call `AddAppAuthorizationProfileEnrichment()` and provide an `IAppAuthorizationProfileLoader`.
+For a microservices platform, downstream APIs can call `AddAbacAuthorizationCore()` when a gateway or identity service already issues internal tokens with normalized app claims. Services that need to load app authorization profiles locally can also call `AddAuthorizationProfileEnrichment()` and provide an `IAuthorizationProfileLoader`.

@@ -1,6 +1,6 @@
 namespace AbacExample.Api.Authorization;
 
-public static class AppRoles
+public static class DocumentRoles
 {
     public const string DocumentAuthor = "document-author";
     public const string RecordsManager = "records-manager";
@@ -11,18 +11,18 @@ public static class AppRoles
         {
             [DocumentAuthor] =
             [
-                AppPermissions.DocumentCreate,
-                AppPermissions.DocumentRead,
-                AppPermissions.DocumentUpdate
+                DocumentPermissions.DocumentCreate,
+                DocumentPermissions.DocumentRead,
+                DocumentPermissions.DocumentUpdate
             ],
             [RecordsManager] =
             [
-                AppPermissions.DocumentCreate,
-                AppPermissions.DocumentRead,
-                AppPermissions.DocumentUpdate,
-                AppPermissions.DocumentDelete
+                DocumentPermissions.DocumentCreate,
+                DocumentPermissions.DocumentRead,
+                DocumentPermissions.DocumentUpdate,
+                DocumentPermissions.DocumentDelete
             ],
-            [ComplianceAuditor] = [AppPermissions.DocumentRead]
+            [ComplianceAuditor] = [DocumentPermissions.DocumentRead]
         };
 
     public static bool IsDefined(string roleName) =>

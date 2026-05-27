@@ -4,13 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AbacExample.Api.Authorization;
 
-public sealed class DbAppAuthorizationProfileLoader(AppDbContext db) : IAppAuthorizationProfileLoader
+public sealed class DbAuthorizationProfileLoader(AbacExampleDbContext db) : IAuthorizationProfileLoader
 {
-    public async Task<AppAuthorizationProfile?> LoadBySubjectAsync(
+    public async Task<AuthorizationProfile?> LoadBySubjectAsync(
         string subject,
         CancellationToken cancellationToken = default)
     {
-        var user = await db.AppUsers
+        var user = await db.AuthorizationUsers
             .AsNoTracking()
             .Include(x => x.Roles)
             .SingleOrDefaultAsync(
@@ -24,13 +24,13 @@ public sealed class DbAppAuthorizationProfileLoader(AppDbContext db) : IAppAutho
 
         var roleNames = user.Roles
             .Select(x => x.RoleName)
-            .Where(AppRoles.IsDefined)
+            .Where(DocumentRoles.IsDefined)
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToArray();
 
-        var permissions = AppRoles.GetPermissionsForRoles(roleNames);
+        var permissions = DocumentRoles.GetPermissionsForRoles(roleNames);
 
-        return new AppAuthorizationProfile(
+        return new AuthorizationProfile(
             user.Id,
             user.ExternalSubjectId,
             user.TenantId,

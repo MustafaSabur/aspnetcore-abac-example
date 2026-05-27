@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace AbacExample.Api.Authorization;
 
-public static class AppPermissionPolicyRegistration
+public static class DocumentPermissionPolicyRegistration
 {
-    public static AuthorizationBuilder AddAppPermissionPolicies(this AuthorizationBuilder builder)
+    public static AuthorizationBuilder AddDocumentPermissionPolicies(this AuthorizationBuilder builder)
     {
-        foreach (var permission in AppPermissions.All)
+        foreach (var permission in DocumentPermissions.All)
         {
             builder.AddPolicy(permission, policy => policy.RequirePermission(permission));
         }
