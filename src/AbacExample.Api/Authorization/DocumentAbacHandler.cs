@@ -61,19 +61,19 @@ public sealed class DocumentAbacHandler(ILogger<DocumentAbacHandler> logger)
             return true;
         }
 
-        return CanUseRecordsManagerBreakGlass(user);
+        return HasElevatedDocumentAccess(user);
     }
 
     private static bool CanUpdate(ClaimsPrincipal user, Document document) =>
-        IsOwner(user, document) || CanUseRecordsManagerBreakGlass(user);
+        IsOwner(user, document) || HasElevatedDocumentAccess(user);
 
     private static bool CanDelete(ClaimsPrincipal user, Document document) =>
-        IsOwner(user, document) || CanUseRecordsManagerBreakGlass(user);
+        IsOwner(user, document) || HasElevatedDocumentAccess(user);
 
     private static bool IsOwner(ClaimsPrincipal user, Document document) =>
         user.UserId() == document.OwnerId;
 
-    private static bool CanUseRecordsManagerBreakGlass(ClaimsPrincipal user) =>
+    private static bool HasElevatedDocumentAccess(ClaimsPrincipal user) =>
         user.Claims.Any(claim =>
             claim.Type == AuthorizationClaims.Role &&
             string.Equals(claim.Value, DocumentRoles.RecordsManager, StringComparison.OrdinalIgnoreCase)) &&

@@ -42,7 +42,7 @@ Expected results:
 - `unknown-dev`: authenticated token, but no app profile, so protected endpoints return `403 Forbidden`.
 - `compliance-auditor-dev`: can read non-confidential same-tenant documents; cannot create, update, or delete documents.
 - `document-author-dev`: can create documents and update assigned same-tenant documents; cannot delete confidential or non-owned documents.
-- `records-manager-dev`: has delete endpoint permission, but needs `amr=mfa` for break-glass access to confidential or non-owned documents.
+- `records-manager-dev`: has delete endpoint permission, but needs `amr=mfa` for elevated access to confidential or non-owned documents.
 - `records-manager-dev` with `amr=mfa`: can update or delete same-tenant confidential or non-owned documents.
 - `outside-compliance-auditor-dev`: can view tenant B documents, but tenant A documents are forbidden by tenant mismatch.
 
@@ -73,7 +73,7 @@ Role assignments live in app data and are tied to the external `sub`. Role names
 - `records-manager`: create, read, update, delete
 - `compliance-auditor`: read
 
-`DocumentAbacHandler` then enforces resource rules: tenant mismatch is a hard deny, owners can read/update/delete assigned documents when endpoint permissions allow it, compliance auditors can read non-confidential same-tenant documents, and records-manager+MFA is the break-glass path for confidential or non-owned updates/deletes.
+`DocumentAbacHandler` then enforces resource rules: tenant mismatch is a hard deny, owners can read/update/delete assigned documents when endpoint permissions allow it, compliance auditors can read non-confidential same-tenant documents, and records-manager+MFA provides elevated document access for confidential or non-owned updates/deletes.
 
 Endpoints that need one of several permissions use `RequireAnyPermission(...)`. Do not stack multiple `.RequireAuthorization(...)` calls to model OR logic, because ASP.NET Core combines multiple authorization requirements as AND. The Minimal API and controller management-context endpoints both demonstrate the OR case.
 
